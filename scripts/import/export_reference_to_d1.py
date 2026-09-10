@@ -31,6 +31,13 @@ TABLE_ORDER = [
     # Reference information
     "reference_source",
 
+    # CLTS
+    "clts_dataset",
+    "clts_feature",
+    "clts_sound",
+    "clts_sound_feature",
+    "clts_grapheme",
+
     # Core Concept Graph
     "concept",
     "relation_type",
@@ -43,7 +50,7 @@ TABLE_ORDER = [
     "wordnet_relation",
     "wordnet_sense_relation",
 
-    # Concepticon ↔ WordNet
+    # Concepticon -> WordNet
     "concept_wordnet_mapping",
 
     # DatSemShift
