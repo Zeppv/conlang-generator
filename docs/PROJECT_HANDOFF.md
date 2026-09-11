@@ -42,9 +42,14 @@ CLTS integration is complete and validated.
 
 PHOIBLE integration is complete and validated through local Cloudflare D1.
 
-The next task is:
+Lexibank inspection and SQLite integration are complete and fully validated.
+The generated D1 SQL has passed a complete SQLite round trip. A local Wrangler
+D1 import still needs to be run on the development machine because the build
+environment did not permit Wrangler to start its local runtime.
 
-**PHONOLOGY ENGINE V1 — STEP 3: inspect and integrate Lexibank.**
+The next task after that final D1 check is:
+
+**PHONOLOGY ENGINE V1 — STEP 4: build inventory statistics and phoneme dependencies.**
 
 Phonology Engine v1 order:
 
@@ -53,9 +58,7 @@ CLTS — COMPLETE
 ↓
 PHOIBLE — COMPLETE
 ↓
-Lexibank — NEXT
-↓
-phoneme database
+Lexibank — COMPLETE IN SQLITE; LOCAL D1 CHECK PENDING
 ↓
 inventory statistics
 ↓
@@ -178,9 +181,11 @@ Confirmed CLTS milestone checkpoint:
 419f90d Complete CLTS integration for phonology engine
 ```
 
-PHOIBLE is complete locally and validated through D1.
+Confirmed PHOIBLE milestone checkpoint:
 
-Before beginning Lexibank, make a clean PHOIBLE Git checkpoint if it has not already been committed and pushed.
+```text
+c990be8 Complete PHOIBLE integration for phonology engine
+```
 
 Raw linguistic source repositories and datasets inside `data/raw/` must not be manually modified simply to make imports work.
 
@@ -663,38 +668,66 @@ local D1 import commands executed: 6,088
 
 ---
 
+# Integrated — Lexibank
+
+Lexibank Analysed is an aggregate of normalized lexical datasets, not raw
+lexical data. It provides real lexical forms, ordered segment sequences,
+word-shape data, phoneme frequencies, and precomputed phonological and lexical
+features.
+
+Integrated checkout:
+
+```text
+repository: lexibank/lexibank-analysed
+tags:       v2.2 and v2.2.1
+commit:     46a2c4c63ae2cbb698cfd5ceb34cfee613eba8c4
+license:    CC-BY-4.0
+```
+
+Validated source totals:
+
+```text
+collections:                     6
+contributions/datasets:        134
+languages/doculects:         5,501
+unique Glottocodes:          3,120
+concepts:                    3,205
+phonemes:                    2,402
+phoneme frequencies:       205,978
+forms:                   1,740,092
+ordered segment tokens:  9,657,998
+unique segment tokens:       2,471
+computed feature values:   294,383
+```
+
+All 3,120 Glottocodes resolve to `reference_language`, and all 3,205
+Concepticon IDs resolve to `concept`. No fuzzy matching is used.
+
+Lexibank has 1,633 phoneme references that map directly to physical
+`clts_sound` records. Its remaining 769 references are valid compound/generated
+CLTS sound-object names created by Lexibank's CLTS processing but not physically
+enumerated in CLTS `sounds.tsv`. They remain explicit unmaterialized references
+instead of being discarded or forced into `clts_sound`.
+
+The form corpus uses 2,471 distinct segment tokens:
+
+```text
+Lexibank phoneme tokens: 2,393
+additional CLTS tones:      76
+boundary token (+):          1
+special token (∼):           1
+```
+
+The `+` token is preserved as a structural boundary and never treated as a
+phoneme. The `∼` token is preserved as a special transcription marker and is
+also not treated as a phoneme.
+
+The importer preserves all forms, ordered tokens, source fields, doculects,
+Concepticon and Glottolog mappings, phoneme frequencies, collections,
+contributions, and the published phonology/lexicon feature tables.
+
+
 # Downloaded But Not Yet Integrated
-
-### Lexibank
-
-Lexibank is the next dataset to inspect and integrate.
-
-Purpose:
-
-- real lexical forms
-- segment sequences
-- word lengths
-- phonotactic statistics
-- root-shape statistics
-- cross-language lexical patterns
-
-Before writing any Lexibank schema or importer:
-
-1. inspect the actual downloaded `data/raw/lexibank` directory
-2. determine whether it is a Git repository
-3. verify its exact tag/version/commit when possible
-4. inspect the actual directory structure
-5. identify compiled/public data versus raw/build-support files
-6. inspect physical headers with Python rather than assuming them
-7. determine whether the local download is one dataset, an aggregate, or a collection of repositories
-8. determine how languages map to Glottolog
-9. determine how concepts map to Concepticon where available
-10. determine how lexical forms and segment sequences are represented
-11. determine how segments should be normalized through CLTS/PHOIBLE
-12. preserve dataset-level and record-level provenance
-13. only then design the Lexibank schema/import pipeline
-
-Do not assume Lexibank filenames or structure from external documentation.
 
 ---
 
@@ -757,6 +790,7 @@ database/schema/003_datsemshift.sql
 database/schema/004_semantic_scores.sql
 database/schema/005_clts.sql
 database/schema/006_phoible.sql
+database/schema/007_lexibank.sql
 ```
 
 The base database includes tables such as:
@@ -869,6 +903,43 @@ phoible_inventory_reference
 There is intentionally no uniqueness rule on `(inventory_id, segment_id)` because PHOIBLE contains five exact duplicate source rows that must be preserved.
 
 `phoible_inventory_reference` preserves the 3,843 InventoryID-to-BibTeX/source mappings.
+
+Lexibank adds:
+
+```text
+lexibank_collection
+lexibank_contribution
+lexibank_contribution_collection
+lexibank_language
+lexibank_language_collection
+lexibank_concept
+lexibank_phoneme
+lexibank_frequency
+lexibank_form
+lexibank_segment_token
+lexibank_form_segment
+lexibank_feature
+lexibank_feature_code
+lexibank_feature_value
+```
+
+`lexibank_form` preserves every source form and all analysed strings, including
+the original ordered `Segments`, `CV_Template`, `Prosodic_String`, Dolgo
+classes, and SCA classes.
+
+`lexibank_segment_token` stores the compact dictionary of 2,471 distinct form
+tokens and classifies each as a phoneme, tone, boundary, or special marker.
+`lexibank_form_segment` preserves all 9,657,998 token occurrences in order by
+referencing that dictionary. This avoids duplicating long Unicode strings in
+millions of rows while keeping the corpus directly queryable.
+
+`lexibank_phoneme` distinguishes exact physical CLTS mappings from Lexibank's
+generated/unmaterialized CLTS references. The latter are preserved exactly and
+are not inserted into `clts_sound`.
+
+`lexibank_feature`, `lexibank_feature_code`, and `lexibank_feature_value`
+preserve both the phonology and lexicon StructureDataset outputs using a
+`feature_domain` discriminator.
 
 ---
 
@@ -1060,6 +1131,7 @@ During the current Phonology Engine stage, the full reference rebuild sequence i
 python scripts\import\rebuild_semantic_engine.py
 python scripts\import\import_clts.py
 python scripts\import\import_phoible.py
+python scripts\import\import_lexibank.py
 ```
 
 ---
@@ -1115,6 +1187,24 @@ It:
 ---
 
 ```text
+scripts/import/import_lexibank.py
+```
+
+Imports the verified Lexibank Analysed v2.2/v2.2.1 commit. It:
+
+- refuses a changed or locally modified raw checkout
+- validates every physical CSV header and the ZIP member layout
+- requires exact Glottolog and Concepticon resolution
+- preserves all source records and provenance
+- streams the 1.74-million-row compressed form table
+- normalizes 9.66 million ordered segment occurrences through a compact token dictionary
+- distinguishes phonemes, CLTS tones, `+` boundaries, and the `∼` special marker
+- preserves generated CLTS references without modifying the physical CLTS tables
+- imports published phoneme frequencies and computed phonology/lexicon features
+
+---
+
+```text
 scripts/import/export_reference_to_d1.py
 ```
 
@@ -1122,7 +1212,8 @@ Converts `reference.sqlite` into D1-compatible SQL.
 
 It contains a table allowlist/order and intentionally stops if the SQLite database contains an application table the exporter does not know about.
 
-It currently exports all 25 application tables, including CLTS and PHOIBLE tables.
+It currently exports all 39 application tables, including CLTS, PHOIBLE, and
+Lexibank tables.
 
 Whenever a new database table is added, this exporter must be updated.
 
@@ -1220,6 +1311,24 @@ Unmatched Glottocodes:        0
 
 Validation should continue to expand as Lexibank and later phonology stages are added.
 
+Lexibank validation:
+
+```text
+scripts/validation/validate_lexibank.py
+```
+
+Current result:
+
+```text
+LEXIBANK VALIDATION PASSED
+```
+
+The validator performs ordered SHA-256 source-to-database round trips for all
+1,740,092 forms, 9,657,998 segment occurrences, 205,978 phoneme-frequency rows,
+and 294,383 computed feature values. It also validates exact core records,
+Glottolog and Concepticon links, CLTS mapping classes, special-token behavior,
+foreign keys, and SQLite integrity.
+
 ---
 
 # Website
@@ -1310,6 +1419,20 @@ local D1 import commands executed successfully: 6,088
 
 CLTS and PHOIBLE have both successfully completed the SQLite → D1 round trip.
 
+The Lexibank build produced a complete 39-table, 678.74 MB D1-compatible export
+from a validation database containing the full real CLTS and Lexibank data. The
+export was re-imported into a fresh SQLite database in 48,379 statements with
+all Lexibank counts, Unicode markers, foreign keys, and integrity preserved.
+
+The final local Wrangler D1 import is pending on the development machine. Run:
+
+```text
+npx wrangler d1 execute conlang-reference --local --file=./data/compiled/reference-d1.sql
+```
+
+The managed build environment blocked Wrangler from starting its local runtime;
+this was an environment restriction, not a SQL or data failure.
+
 The public production site has intentionally not been deployed yet.
 
 ---
@@ -1350,9 +1473,7 @@ CLTS — COMPLETE
 ↓
 PHOIBLE — COMPLETE
 ↓
-Lexibank — NEXT
-↓
-phoneme database
+Lexibank — COMPLETE IN SQLITE; LOCAL D1 CHECK PENDING
 ↓
 inventory statistics
 ↓
@@ -1637,39 +1758,78 @@ Latest D1 export:
 6,088 local D1 commands executed successfully
 ```
 
-PHOIBLE is complete locally.
+PHOIBLE is complete locally and has a clean Git checkpoint:
 
-Before beginning Lexibank, make a PHOIBLE Git checkpoint if it has not already been committed and pushed.
+```text
+c990be8 Complete PHOIBLE integration for phonology engine
+```
+
+---
+
+## LEXIBANK — COMPLETE IN SQLITE; LOCAL D1 CHECK PENDING
+
+Lexibank Analysed v2.2/v2.2.1 is integrated and fully validated against its
+physical source files.
+
+Verified raw checkout:
+
+```text
+tags:   v2.2 and v2.2.1
+commit: 46a2c4c63ae2cbb698cfd5ceb34cfee613eba8c4
+```
+
+Validated database counts:
+
+```text
+collections:                     6
+contributions:                 134
+languages/doculects:         5,501
+concepts:                    3,205
+phonemes:                    2,402
+phoneme frequencies:       205,978
+forms:                   1,740,092
+unique segment tokens:       2,471
+ordered segment rows:    9,657,998
+feature definitions:            67
+feature codes:                 177
+feature values:            294,383
+```
+
+All raw rows and ordered segments pass exact source-to-SQLite SHA-256 round
+trips. Foreign keys and SQLite integrity pass.
+
+CLTS mapping results:
+
+```text
+physical CLTS references:                1,633
+generated/unmaterialized CLTS refs:        769
+generated refs used in forms:              762
+occurrences of generated refs:          48,194
+forms containing generated refs:        35,126
+```
+
+The SQLite → D1 SQL exporter now includes all 39 application tables. A complete
+678.74 MB export containing full real CLTS and Lexibank data was successfully
+re-imported into a clean SQLite database in 48,379 statements. The final local
+Wrangler D1 execution must still be run on the development machine.
 
 ---
 
 # NEXT TASK
 
-**PHONOLOGY ENGINE V1 — STEP 3: inspect and integrate Lexibank.**
-
-Start with inspection only.
-
-Before writing any Lexibank schema or importer:
-
-1. Inspect the actual `data/raw/lexibank` directory.
-2. Determine whether it is a Git repository.
-3. Verify its exact version/tag/commit when possible.
-4. Inspect the real directory structure.
-5. Identify compiled/public data versus raw/build-support files.
-6. Inspect physical file headers using Python rather than assuming them.
-7. Determine whether the local Lexibank download is one dataset, an aggregate, or a collection of repositories.
-8. Determine how languages map to Glottolog.
-9. Determine how concepts map to Concepticon where available.
-10. Determine how lexical forms and segmented forms are represented.
-11. Determine how segments can be normalized using CLTS and PHOIBLE.
-12. Preserve dataset-level and record-level provenance.
-13. Only then design the Lexibank schema and importer.
-
-After Lexibank:
+First complete the final local D1 check:
 
 ```text
-phoneme database
-↓
+npx wrangler d1 execute conlang-reference --local --file=./data/compiled/reference-d1.sql
+```
+
+Then begin:
+
+**PHONOLOGY ENGINE V1 — STEP 4: inventory statistics and phoneme co-occurrence/dependencies.**
+
+Continue in this order:
+
+```text
 inventory statistics
 ↓
 phoneme co-occurrence and dependencies
@@ -1683,4 +1843,5 @@ stress and related phonological systems
 phonology naturalism scoring
 ```
 
-Do not start Grambank, UniMorph, Universal Dependencies, WOLD, Wiktionary, grammar, or later roadmap stages until Phonology Engine v1 is complete.
+Do not start Grambank, UniMorph, Universal Dependencies, WOLD, Wiktionary,
+grammar, or later roadmap stages until Phonology Engine v1 is complete.
