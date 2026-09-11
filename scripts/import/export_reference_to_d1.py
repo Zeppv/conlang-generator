@@ -50,6 +50,22 @@ TABLE_ORDER = [
     "phoible_inventory_segment",
     "phoible_inventory_reference",
 
+    # Lexibank
+    "lexibank_collection",
+    "lexibank_contribution",
+    "lexibank_contribution_collection",
+    "lexibank_language",
+    "lexibank_language_collection",
+    "lexibank_concept",
+    "lexibank_phoneme",
+    "lexibank_frequency",
+    "lexibank_form",
+    "lexibank_segment_token",
+    "lexibank_form_segment",
+    "lexibank_feature",
+    "lexibank_feature_code",
+    "lexibank_feature_value",
+
     # WordNet
     "wordnet_synset",
     "wordnet_lemma",
