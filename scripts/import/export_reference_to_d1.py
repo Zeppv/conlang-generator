@@ -31,6 +31,11 @@ TABLE_ORDER = [
     # Reference information
     "reference_source",
 
+    # Core reference information
+    "concept",
+    "relation_type",
+    "reference_language",
+
     # CLTS
     "clts_dataset",
     "clts_feature",
@@ -38,10 +43,12 @@ TABLE_ORDER = [
     "clts_sound_feature",
     "clts_grapheme",
 
-    # Core Concept Graph
-    "concept",
-    "relation_type",
-    "reference_language",
+    # PHOIBLE
+    "phoible_inventory",
+    "phoible_segment",
+    "phoible_segment_feature",
+    "phoible_inventory_segment",
+    "phoible_inventory_reference",
 
     # WordNet
     "wordnet_synset",
@@ -64,7 +71,6 @@ TABLE_ORDER = [
     # Unified graph edges
     "concept_relation",
 ]
-
 
 
 # ---------------------------------------------------------

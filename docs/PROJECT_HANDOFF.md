@@ -40,18 +40,20 @@ Semantic Engine v1 is complete and working.
 
 CLTS integration is complete and validated.
 
+PHOIBLE integration is complete and validated through local Cloudflare D1.
+
 The next task is:
 
-**PHONOLOGY ENGINE V1 — STEP 2: integrate PHOIBLE.**
+**PHONOLOGY ENGINE V1 — STEP 3: inspect and integrate Lexibank.**
 
 Phonology Engine v1 order:
 
 ```text
 CLTS — COMPLETE
 ↓
-PHOIBLE — NEXT
+PHOIBLE — COMPLETE
 ↓
-Lexibank
+Lexibank — NEXT
 ↓
 phoneme database
 ↓
@@ -76,7 +78,7 @@ Do not move on to Grambank, UniMorph, Universal Dependencies, WOLD, Wiktionary, 
 
 # Semantic Engine v1 — COMPLETE
 
-The system currently combines:
+The Semantic Engine currently combines:
 
 1. Concepticon
 2. CLICS
@@ -164,7 +166,21 @@ Remote:
 origin
 ```
 
-The project should use clean Git checkpoints after major roadmap milestones.
+Main branch:
+
+```text
+main
+```
+
+Confirmed CLTS milestone checkpoint:
+
+```text
+419f90d Complete CLTS integration for phonology engine
+```
+
+PHOIBLE is complete locally and validated through D1.
+
+Before beginning Lexibank, make a clean PHOIBLE Git checkpoint if it has not already been committed and pushed.
 
 Raw linguistic source repositories and datasets inside `data/raw/` must not be manually modified simply to make imports work.
 
@@ -397,23 +413,17 @@ tone:          132
 vowel:       1,674
 ```
 
-The full CLTS source-to-SQLite validator passes.
+CLTS has passed:
 
-SQLite foreign-key and integrity checks pass.
+- source-to-SQLite validation
+- SQLite foreign-key checks
+- SQLite integrity checks
+- SQLite → D1 SQL export
+- local Cloudflare D1 import
+- D1 row-count checks
+- real Unicode/IPA query checks
 
-The SQLite → D1 SQL → local Cloudflare D1 round trip has also been tested successfully.
-
-Local D1 contains the same CLTS counts:
-
-```text
-datasets:        33
-features:        163
-sounds:          8,765
-sound features:  44,525
-graphemes:       81,895
-```
-
-A real CLTS sound query was also confirmed in D1:
+A real CLTS D1 query was confirmed:
 
 ```text
 id: unrounded_open_front_vowel
@@ -423,31 +433,243 @@ sound_type: vowel
 
 ---
 
-# Downloaded But Not Yet Integrated
-
-The following datasets exist locally but should remain untouched until their roadmap stage.
-
 ### PHOIBLE
 
-Future purpose:
+Purpose:
 
-- real phoneme inventories
+- real-language phoneme inventories
 - inventory sizes
 - cross-linguistic phoneme occurrence
-- phoneme co-occurrence
-- phonological naturalism statistics
+- distinctive-feature data
+- allophones
+- marginal phonemes
+- source provenance
+- basis for phoneme-frequency and co-occurrence statistics
 
-PHOIBLE is the next dataset to integrate.
+Integrated version:
 
-Before writing PHOIBLE import code, inspect the actual downloaded PHOIBLE directory and files rather than assuming filenames or release structure.
+```text
+PHOIBLE v2.0
+```
 
-PHOIBLE should use CLTS as the sound-normalization foundation where appropriate.
+Verified local Git checkout:
+
+```text
+tag: v2.0
+commit: 862bec9af5db42e3c9ceedeaa378bf4c6fa0ec8b
+commit date: 2019-03-16
+```
+
+License:
+
+```text
+MIT
+```
+
+Primary PHOIBLE importer inputs:
+
+```text
+data/raw/phoible/data/phoible.csv
+data/raw/phoible/mappings/InventoryID-LanguageCodes.csv
+data/raw/phoible/mappings/InventoryID-Bibtex.csv
+data/raw/phoible/data/phoible-references.bib
+data/raw/phoible/data/LICENSE
+```
+
+The primary compiled phoneme-level dataset is:
+
+```text
+data/raw/phoible/data/phoible.csv
+```
+
+Its verified physical schema contains:
+
+- InventoryID
+- Glottocode
+- ISO6393
+- LanguageName
+- SpecificDialect
+- GlyphID
+- Phoneme
+- Allophones
+- Marginal
+- SegmentClass
+- Source
+- 37 distinctive-feature columns
+
+Validated PHOIBLE source totals:
+
+```text
+main observations: 105,467
+inventories:         3,020
+unique segments:     3,175
+feature columns:        37
+reference mappings:  3,843
+```
+
+Observation-level segment classes:
+
+```text
+consonant: 72,257
+vowel:     31,063
+tone:       2,147
+```
+
+PHOIBLE contains five repeated `(InventoryID, Phoneme)` pairs representing five extra exact duplicate source rows.
+
+These rows are preserved rather than deduplicated.
+
+One inventory (`InventoryID 2171`) contains multiple `SpecificDialect` values, so `SpecificDialect` is stored at the observation level rather than being forced into one inventory-level value.
+
+`InventoryID-LanguageCodes.csv` agrees with the primary PHOIBLE file for:
+
+- InventoryID
+- ISO6393
+- Glottocode
+- Source
+
+It differs in `LanguageName` for 235 inventories.
+
+These differences are preserved in separate database fields:
+
+```text
+language_name
+mapping_language_name
+```
+
+No source name is overwritten.
+
+All 3,020 PHOIBLE inventories match the existing Glottolog-backed `reference_language` table by Glottocode.
+
+PHOIBLE → CLTS mapping uses conservative tiers:
+
+```text
+1. CLTS mappings explicitly sourced from PHOIBLE
+2. exact CLTS grapheme match only when the result is unambiguous
+3. ambiguous mappings remain unresolved
+4. unmatched symbols remain unresolved
+```
+
+Validated unique-segment mapping results:
+
+```text
+mapped / clts_phoible:      2,717
+mapped / clts_exact_alias:    269
+ambiguous:                     20
+unmapped:                      169
+total mapped:                2,986 / 3,175 = 94.05%
+```
+
+No ambiguous mapping is guessed.
+
+Validated PHOIBLE database counts:
+
+```text
+phoible_inventory:             3,020
+phoible_segment:               3,175
+phoible_segment_feature:     117,475
+phoible_inventory_segment:   105,467
+phoible_inventory_reference:   3,843
+```
+
+PHOIBLE validation confirms:
+
+- physical source-file schemas
+- inventory-language identifiers
+- all 235 language-name differences
+- stable phoneme/GlyphID/feature profiles
+- all 117,475 segment-feature records
+- all 105,467 source observations
+- all five repeated inventory/segment pairs
+- row-level SpecificDialect preservation
+- bibliography coverage
+- MIT license
+- Glottolog links
+- conservative CLTS mappings
+- SQLite foreign keys
+- SQLite integrity
+
+Current validator result:
+
+```text
+PHOIBLE VALIDATION PASSED
+```
+
+Final validator summary:
+
+```text
+Inventories validated:        3,020
+Segments validated:           3,175
+Segment features validated:   117,475
+Observations validated:       105,467
+References validated:         3,843
+Repeated pairs preserved:     5
+Multi-dialect inventories:    1
+Language-name differences:    235
+Unmatched Glottocodes:        0
+```
+
+CLTS mapping validation:
+
+```text
+ambiguous / -:               20
+mapped / clts_exact_alias:  269
+mapped / clts_phoible:    2,717
+unmapped / -:               169
+Total mapped:             2,986 (94.05%)
+```
+
+PHOIBLE has also passed the SQLite → D1 round trip.
+
+Latest verified D1 counts:
+
+```text
+inventories:          3,020
+segments:             3,175
+segment_features:   117,475
+inventory_segments: 105,467
+references:           3,843
+```
+
+D1 also confirmed the same CLTS mapping summary.
+
+A preserved PHOIBLE source-name difference was verified in D1:
+
+```text
+InventoryID: 1011
+language_name: Siraiki
+mapping_language_name: Saraiki
+glottocode: sera1259
+iso6393: skr
+```
+
+A real PHOIBLE → CLTS mapping was verified in D1:
+
+```text
+phoneme: a
+segment_class: vowel
+clts_mapping_status: mapped
+clts_mapping_method: clts_phoible
+clts_grapheme: a
+```
+
+Latest D1 export after PHOIBLE:
+
+```text
+application tables: 25
+reference-d1.sql size: 124.40 MB
+local D1 import commands executed: 6,088
+```
 
 ---
 
+# Downloaded But Not Yet Integrated
+
 ### Lexibank
 
-Future purpose:
+Lexibank is the next dataset to inspect and integrate.
+
+Purpose:
 
 - real lexical forms
 - segment sequences
@@ -456,13 +678,29 @@ Future purpose:
 - root-shape statistics
 - cross-language lexical patterns
 
-Lexibank should be integrated only after PHOIBLE.
+Before writing any Lexibank schema or importer:
+
+1. inspect the actual downloaded `data/raw/lexibank` directory
+2. determine whether it is a Git repository
+3. verify its exact tag/version/commit when possible
+4. inspect the actual directory structure
+5. identify compiled/public data versus raw/build-support files
+6. inspect physical headers with Python rather than assuming them
+7. determine whether the local download is one dataset, an aggregate, or a collection of repositories
+8. determine how languages map to Glottolog
+9. determine how concepts map to Concepticon where available
+10. determine how lexical forms and segment sequences are represented
+11. determine how segments should be normalized through CLTS/PHOIBLE
+12. preserve dataset-level and record-level provenance
+13. only then design the Lexibank schema/import pipeline
+
+Do not assume Lexibank filenames or structure from external documentation.
 
 ---
 
 ### Grambank
 
-Future purpose:
+Purpose:
 
 - grammatical typology
 - grammatical-feature correlations
@@ -473,7 +711,7 @@ Do not integrate until the grammar stage.
 
 ### NoRaRe
 
-Future purpose:
+Purpose:
 
 - semantic norms
 - ratings
@@ -485,7 +723,7 @@ Not yet integrated.
 
 ### WOLD
 
-Future purpose:
+Purpose:
 
 - borrowing
 - loanword behavior
@@ -518,6 +756,7 @@ database/schema/002_wordnet.sql
 database/schema/003_datsemshift.sql
 database/schema/004_semantic_scores.sql
 database/schema/005_clts.sql
+database/schema/006_phoible.sql
 ```
 
 The base database includes tables such as:
@@ -569,7 +808,7 @@ clts_grapheme
 
 `clts_feature` stores valid CLTS sound-feature/value definitions.
 
-`clts_sound` stores standardized CLTS sounds and their canonical BIPA graphemes.
+`clts_sound` stores standardized CLTS sounds and canonical BIPA graphemes.
 
 `clts_sound_feature` normalizes each sound's ordered CLTS feature list into queryable relationships.
 
@@ -588,6 +827,48 @@ rather than:
 because some CLTS sounds legitimately repeat the same feature ID at different positions in the ordered feature list.
 
 `clts_grapheme` stores source transcription graphemes and maps them to standardized CLTS sounds while preserving source dataset provenance.
+
+PHOIBLE adds:
+
+```text
+phoible_inventory
+phoible_segment
+phoible_segment_feature
+phoible_inventory_segment
+phoible_inventory_reference
+```
+
+`phoible_inventory` stores one row per InventoryID and includes:
+
+- Glottocode
+- ISO6393
+- `language_name` from `phoible.csv`
+- `mapping_language_name` from `InventoryID-LanguageCodes.csv`
+- source code
+- link to `reference_language`
+
+`phoible_segment` stores one row per stable unique PHOIBLE phoneme string/GlyphID/profile and includes:
+
+- segment class
+- CLTS sound mapping
+- mapping status
+- mapping method
+
+`phoible_segment_feature` stores the 37 PHOIBLE distinctive-feature values for each unique segment.
+
+`phoible_inventory_segment` preserves every original phoneme-level source row and includes:
+
+- source row number
+- inventory
+- segment
+- SpecificDialect
+- Allophones
+- raw Marginal value
+- normalized marginal flag
+
+There is intentionally no uniqueness rule on `(inventory_id, segment_id)` because PHOIBLE contains five exact duplicate source rows that must be preserved.
+
+`phoible_inventory_reference` preserves the 3,843 InventoryID-to-BibTeX/source mappings.
 
 ---
 
@@ -712,7 +993,7 @@ The scoring system is currently heuristic and should eventually be recalibrated 
 
 # Important Scripts
 
-## Import scripts
+## Import Scripts
 
 ```text
 scripts/import/build_concept_graph.py
@@ -769,11 +1050,17 @@ Rebuilds Semantic Engine v1 in order:
 5. DatSemShift
 6. Semantic scoring
 
-This remains the normal full Semantic Engine rebuild command.
+This remains the normal Semantic Engine rebuild command.
 
-CLTS is intentionally not added to `rebuild_semantic_engine.py`.
+CLTS and PHOIBLE are intentionally not added to the Semantic Engine rebuild script.
 
-Semantic Engine v1 should remain independently rebuildable.
+During the current Phonology Engine stage, the full reference rebuild sequence is:
+
+```text
+python scripts\import\rebuild_semantic_engine.py
+python scripts\import\import_clts.py
+python scripts\import\import_phoible.py
+```
 
 ---
 
@@ -781,26 +1068,49 @@ Semantic Engine v1 should remain independently rebuildable.
 scripts/import/import_clts.py
 ```
 
-Imports CLTS 2.3.0 into the reference database.
+Imports verified CLTS 2.3.0.
 
-It imports:
-
-1. CLTS source datasets
-2. CLTS feature definitions
-3. standardized CLTS sounds
-4. normalized sound-feature relationships
-5. source grapheme mappings
-
-The importer verifies that the raw CLTS checkout is exactly:
+The importer verifies:
 
 ```text
 tag: v2.3.0
 commit: ec67f56a9197b072b2c15a5954a1b316864954fc
 ```
 
-It verifies that the CLTS checkout has no local modifications.
+It refuses locally modified raw CLTS data.
 
-It also verifies the actual physical TSV headers before importing and stops rather than guessing if the source layout changes.
+It validates the actual physical source headers.
+
+---
+
+```text
+scripts/import/import_phoible.py
+```
+
+Imports verified PHOIBLE v2.0.
+
+The importer verifies:
+
+```text
+tag: v2.0
+commit: 862bec9af5db42e3c9ceedeaa378bf4c6fa0ec8b
+```
+
+It:
+
+- refuses locally modified raw PHOIBLE data
+- validates physical source headers
+- preserves both PHOIBLE language-name sources
+- validates inventory identifier consistency
+- normalizes stable unique segment profiles
+- imports 37 features per unique segment
+- preserves every original observation
+- preserves repeated source rows
+- preserves observation-level SpecificDialect
+- preserves bibliography mappings
+- links inventories to Glottolog
+- maps segments to CLTS conservatively
+- leaves ambiguous/unmapped cases unresolved
 
 ---
 
@@ -812,17 +1122,9 @@ Converts `reference.sqlite` into D1-compatible SQL.
 
 It contains a table allowlist/order and intentionally stops if the SQLite database contains an application table the exporter does not know about.
 
-The exporter has been updated to include:
+It currently exports all 25 application tables, including CLTS and PHOIBLE tables.
 
-```text
-clts_dataset
-clts_feature
-clts_sound
-clts_sound_feature
-clts_grapheme
-```
-
-Whenever a new database table is added, this exporter must also be updated.
+Whenever a new database table is added, this exporter must be updated.
 
 ---
 
@@ -846,7 +1148,7 @@ Builds pair and directional semantic evidence scores.
 
 # Validation Scripts
 
-Existing WordNet/semantic validation scripts live in:
+Existing validation scripts live in:
 
 ```text
 scripts/validation/
@@ -858,41 +1160,65 @@ CLTS validation:
 scripts/validation/validate_clts.py
 ```
 
-The CLTS validator compares the compiled SQLite database directly against the original CLTS 2.3.0 TSV files.
-
-It validates:
-
-- physical source-file schemas
-- source primary-key uniqueness
-- CLTS dataset types
-- CLTS feature types
-- CLTS sound types
-- every sound-to-feature reference
-- every grapheme-to-sound mapping
-- every grapheme-to-source-dataset mapping
-- source provenance
-- exact IPA/Unicode preservation
-- imported database row counts
-- SQLite foreign keys
-- SQLite integrity
-
-Current CLTS validation result:
+Current result:
 
 ```text
 CLTS VALIDATION PASSED
 ```
 
-Validated counts:
+PHOIBLE validation:
 
 ```text
-Datasets validated:       33
-Features validated:       163
-Sounds validated:         8,765
-Sound features validated: 44,525
-Graphemes validated:      81,895
+scripts/validation/validate_phoible.py
 ```
 
-Validation should continue to be expanded as new Phonology Engine stages are added.
+Current result:
+
+```text
+PHOIBLE VALIDATION PASSED
+```
+
+The PHOIBLE validator checks:
+
+- physical source schemas
+- source inventory consistency
+- language-code mapping coverage
+- language-name differences
+- stable segment/GlyphID/feature profiles
+- segment classes
+- all 37 feature columns
+- repeated inventory/segment rows
+- observation-level SpecificDialect variation
+- bibliography coverage
+- MIT license
+- SQLite foreign keys
+- SQLite integrity
+- reference-source registration
+- database row counts
+- inventory contents
+- Glottolog links
+- conservative CLTS mappings
+- all segment-feature records
+- all source observations
+- preservation of duplicate source rows
+- SpecificDialect preservation
+- inventory-reference mappings
+
+Final PHOIBLE validator result:
+
+```text
+Inventories validated:        3,020
+Segments validated:           3,175
+Segment features validated:   117,475
+Observations validated:       105,467
+References validated:         3,843
+Repeated pairs preserved:     5
+Multi-dialect inventories:    1
+Language-name differences:    235
+Unmatched Glottocodes:        0
+```
+
+Validation should continue to expand as Lexibank and later phonology stages are added.
 
 ---
 
@@ -928,7 +1254,9 @@ Relationship display currently prioritizes important evidence sources such as Da
 
 The frontend automatically selects the best/exact search result when appropriate.
 
-No CLTS/phonology UI has been added yet.
+No dedicated CLTS, PHOIBLE, or phonology UI has been added yet.
+
+Do not prioritize phonology UI until the underlying Phonology Engine v1 data/statistics pipeline is complete and clean.
 
 ---
 
@@ -972,7 +1300,15 @@ then start the application:
 npm run dev
 ```
 
-The CLTS tables have successfully completed this SQLite → D1 round trip.
+Current verified D1 export after PHOIBLE:
+
+```text
+application tables: 25
+reference-d1.sql size: 124.40 MB
+local D1 import commands executed successfully: 6,088
+```
+
+CLTS and PHOIBLE have both successfully completed the SQLite → D1 round trip.
 
 The public production site has intentionally not been deployed yet.
 
@@ -1012,9 +1348,9 @@ Current progress:
 ```text
 CLTS — COMPLETE
 ↓
-PHOIBLE — NEXT
+PHOIBLE — COMPLETE
 ↓
-Lexibank
+Lexibank — NEXT
 ↓
 phoneme database
 ↓
@@ -1055,7 +1391,7 @@ Important planned capabilities include:
 - consonant harmony
 - frequency-weighted sound selection
 
-CLTS answers primarily:
+CLTS primarily answers:
 
 ```text
 What sound is this?
@@ -1063,21 +1399,22 @@ What is its standardized representation?
 What phonetic features does it have?
 ```
 
-PHOIBLE should answer primarily:
+PHOIBLE primarily answers:
 
 ```text
-Which phonemes actually occur in real languages?
+Which phonemes occur in real-language inventories?
 Which sounds occur together?
 How large are real inventories?
-How common are particular inventory patterns?
+What distinctive-feature profiles occur?
 ```
 
-Lexibank should later help answer:
+Lexibank should help answer:
 
 ```text
-How are sounds actually arranged in words?
-What segment sequences and word shapes are common?
-What phonotactic patterns occur cross-linguistically?
+How are sounds arranged in words?
+What segment sequences are common?
+What word and root shapes occur?
+What phonotactic patterns are cross-linguistically plausible?
 ```
 
 ---
@@ -1156,7 +1493,7 @@ Public deployment
 
 3. Do not treat English words as universal concepts.
 
-4. Do not automatically accept ambiguous semantic mappings.
+4. Do not automatically accept ambiguous semantic or phonological mappings.
 
 5. Do not generate every English dictionary word independently.
 
@@ -1180,6 +1517,16 @@ Public deployment
 
 15. Test new reference tables through the SQLite → D1 round trip before moving to the next roadmap stage.
 
+16. Preserve inconsistencies in upstream datasets when they represent differing source records; do not silently rewrite raw linguistic evidence.
+
+17. Conservative mappings are preferred over guessed mappings. Ambiguous and unresolved cases should remain identifiable.
+
+18. When a source has multiple names or labels for the same record, preserve both when practical rather than silently choosing one.
+
+19. Do not deduplicate raw-source rows merely because they appear identical unless there is strong evidence that deduplication is intended by the source.
+
+20. Keep the Semantic Engine independently rebuildable from the Phonology Engine.
+
 ---
 
 # Exact Current Stopping Point
@@ -1190,7 +1537,7 @@ Phonology Engine v1 is in progress.
 
 ## CLTS — COMPLETE
 
-CLTS 2.3.0 has been integrated into the reference database.
+CLTS 2.3.0 is integrated, validated, and tested through local Cloudflare D1.
 
 Verified raw checkout:
 
@@ -1225,31 +1572,102 @@ SQLite integrity and foreign-key checks pass.
 
 The SQLite → D1 SQL → local Cloudflare D1 round trip passes.
 
-Local D1 contains the expected CLTS data.
+---
 
-CLTS implementation is complete locally.
+## PHOIBLE — COMPLETE
 
-A Git checkpoint should be made before beginning PHOIBLE if it has not already been committed.
+PHOIBLE v2.0 is integrated, validated, and tested through local Cloudflare D1.
 
-## NEXT TASK
-
-**PHONOLOGY ENGINE V1 — STEP 2: integrate PHOIBLE.**
-
-Before writing any PHOIBLE schema or importer code:
-
-1. Inspect the actual downloaded PHOIBLE directory.
-2. Verify the installed PHOIBLE version or commit if possible.
-3. Inspect the real file structure and physical headers.
-4. Determine how PHOIBLE represents languages, inventories, phonemes, allophones, and features.
-5. Determine how PHOIBLE's segment representations should map to CLTS.
-6. Preserve PHOIBLE provenance separately from CLTS.
-7. Only then design the PHOIBLE schema and importer.
-
-After PHOIBLE:
+Verified raw checkout:
 
 ```text
-Lexibank
-↓
+tag: v2.0
+commit: 862bec9af5db42e3c9ceedeaa378bf4c6fa0ec8b
+```
+
+PHOIBLE database tables:
+
+```text
+phoible_inventory
+phoible_segment
+phoible_segment_feature
+phoible_inventory_segment
+phoible_inventory_reference
+```
+
+Validated counts:
+
+```text
+inventories:        3,020
+segments:           3,175
+segment features: 117,475
+observations:     105,467
+references:         3,843
+```
+
+PHOIBLE validation passes completely.
+
+All 3,020 PHOIBLE Glottocodes resolve to the existing `reference_language` table.
+
+235 language-name differences between the two PHOIBLE source files are preserved.
+
+Five repeated inventory/segment pairs are preserved exactly.
+
+The single inventory with multiple `SpecificDialect` values is preserved at the observation level.
+
+Conservative PHOIBLE → CLTS mapping results:
+
+```text
+mapped via CLTS PHOIBLE mappings: 2,717
+mapped via exact safe aliases:      269
+ambiguous and unresolved:            20
+unmapped and unresolved:            169
+total mapped:                      2,986 (94.05%)
+```
+
+SQLite integrity and foreign-key checks pass.
+
+The SQLite → D1 SQL → local Cloudflare D1 round trip passes.
+
+Latest D1 export:
+
+```text
+25 application tables
+124.40 MB reference-d1.sql
+6,088 local D1 commands executed successfully
+```
+
+PHOIBLE is complete locally.
+
+Before beginning Lexibank, make a PHOIBLE Git checkpoint if it has not already been committed and pushed.
+
+---
+
+# NEXT TASK
+
+**PHONOLOGY ENGINE V1 — STEP 3: inspect and integrate Lexibank.**
+
+Start with inspection only.
+
+Before writing any Lexibank schema or importer:
+
+1. Inspect the actual `data/raw/lexibank` directory.
+2. Determine whether it is a Git repository.
+3. Verify its exact version/tag/commit when possible.
+4. Inspect the real directory structure.
+5. Identify compiled/public data versus raw/build-support files.
+6. Inspect physical file headers using Python rather than assuming them.
+7. Determine whether the local Lexibank download is one dataset, an aggregate, or a collection of repositories.
+8. Determine how languages map to Glottolog.
+9. Determine how concepts map to Concepticon where available.
+10. Determine how lexical forms and segmented forms are represented.
+11. Determine how segments can be normalized using CLTS and PHOIBLE.
+12. Preserve dataset-level and record-level provenance.
+13. Only then design the Lexibank schema and importer.
+
+After Lexibank:
+
+```text
 phoneme database
 ↓
 inventory statistics
