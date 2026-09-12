@@ -42,14 +42,17 @@ CLTS integration is complete and validated.
 
 PHOIBLE integration is complete and validated through local Cloudflare D1.
 
-Lexibank inspection and SQLite integration are complete and fully validated.
-The generated D1 SQL has passed a complete SQLite round trip. A local Wrangler
-D1 import still needs to be run on the development machine because the build
-environment did not permit Wrangler to start its local runtime.
+Lexibank integration is complete and validated through local Cloudflare D1.
+The existing Concept Explorer still works after the full Lexibank D1 import;
+there is intentionally no Lexibank UI yet.
+
+Phonology Engine Step 4 now has a schema, deterministic statistics builder, and
+row-by-row validator. Its generated D1 SQL passes a clean SQLite round trip. A
+final local Wrangler import must be run on the development machine.
 
 The next task after that final D1 check is:
 
-**PHONOLOGY ENGINE V1 — STEP 4: build inventory statistics and phoneme dependencies.**
+**PHONOLOGY ENGINE V1 — STEP 5: build phonotactics from Lexibank forms.**
 
 Phonology Engine v1 order:
 
@@ -58,11 +61,10 @@ CLTS — COMPLETE
 ↓
 PHOIBLE — COMPLETE
 ↓
-Lexibank — COMPLETE IN SQLITE; LOCAL D1 CHECK PENDING
+Lexibank — COMPLETE
 ↓
-inventory statistics
-↓
-phoneme co-occurrence and dependencies
+inventory statistics and phoneme dependencies — COMPLETE IN SQLITE;
+LOCAL D1 CHECK PENDING
 ↓
 phonotactics
 ↓
@@ -791,6 +793,7 @@ database/schema/004_semantic_scores.sql
 database/schema/005_clts.sql
 database/schema/006_phoible.sql
 database/schema/007_lexibank.sql
+database/schema/008_phonology_statistics.sql
 ```
 
 The base database includes tables such as:
@@ -903,6 +906,31 @@ phoible_inventory_reference
 There is intentionally no uniqueness rule on `(inventory_id, segment_id)` because PHOIBLE contains five exact duplicate source rows that must be preserved.
 
 `phoible_inventory_reference` preserves the 3,843 InventoryID-to-BibTeX/source mappings.
+
+Phonology Engine Step 4 adds:
+
+```text
+phonology_analysis
+phonology_inventory_profile
+phonology_segment_prevalence
+phonology_segment_cooccurrence
+```
+
+`phonology_inventory_profile` records the observed and distinct inventory size,
+consonant/vowel/tone balance, marginality coverage, CLTS mapping coverage,
+consonant-to-vowel ratio, and vowel share for every PHOIBLE inventory.
+
+`phonology_segment_prevalence` records each segment's frequency and rank at two
+scopes. Inventory scope treats each PHOIBLE source inventory as one unit.
+Language scope merges inventories that share a Glottocode while keeping the two
+inventories without Glottocodes as separate evidence units.
+
+`phonology_segment_cooccurrence` preserves every observed segment pair at both
+scopes and calculates support, both directional conditional probabilities,
+lift, pointwise mutual information, phi, and Jaccard similarity. It also stores
+unobserved pairs only when the independence-model expected count is at least
+5.0. This preserves credible negative evidence without materializing millions
+of unsupported rare pairs. These values are evidence, not generator rules.
 
 Lexibank adds:
 
@@ -1212,8 +1240,10 @@ Converts `reference.sqlite` into D1-compatible SQL.
 
 It contains a table allowlist/order and intentionally stops if the SQLite database contains an application table the exporter does not know about.
 
-It currently exports all 39 application tables, including CLTS, PHOIBLE, and
-Lexibank tables.
+It currently exports all 43 application tables, including CLTS, PHOIBLE,
+Lexibank, and derived phonology-statistics tables. It writes the complete
+`reference-d1.sql` file and automatically creates statement-safe files no
+larger than 64 MiB in `data/compiled/reference-d1-parts/` for Wrangler.
 
 Whenever a new database table is added, this exporter must be updated.
 
@@ -1234,6 +1264,15 @@ scripts/analysis/build_semantic_scores.py
 ```
 
 Builds pair and directional semantic evidence scores.
+
+---
+
+```text
+scripts/analysis/build_phonology_statistics.py
+```
+
+Deterministically rebuilds PHOIBLE inventory profiles, inventory- and
+language-scope segment prevalence, and co-occurrence/dependency evidence.
 
 ---
 
@@ -1329,6 +1368,23 @@ and 294,383 computed feature values. It also validates exact core records,
 Glottolog and Concepticon links, CLTS mapping classes, special-token behavior,
 foreign keys, and SQLite integrity.
 
+Phonology statistics validation:
+
+```text
+scripts/validation/validate_phonology_statistics.py
+```
+
+Current result:
+
+```text
+PHONOLOGY STATISTICS VALIDATION PASSED
+```
+
+It reconstructs PHOIBLE inventory and language evidence units and compares all
+3,020 inventory profiles, 6,350 prevalence rows, and 570,320 co-occurrence rows
+in deterministic order. It also validates metadata, evidence classifications,
+foreign keys, and SQLite integrity.
+
 ---
 
 # Website
@@ -1397,11 +1453,16 @@ then delete local Wrangler state:
 if exist .wrangler\state rmdir /s /q .wrangler\state
 ```
 
-then:
+then import every generated part in order from an interactive Windows Command
+Prompt:
 
 ```text
-npx wrangler d1 execute conlang-reference --local --file=./data/compiled/reference-d1.sql
+for %f in (data\compiled\reference-d1-parts\reference-d1-part-*.sql) do npx wrangler d1 execute conlang-reference --local --file="%f"
 ```
+
+Use `%%f` instead of `%f` only when placing the command inside a `.bat` file.
+Do not pass the complete `reference-d1.sql` to Wrangler; the full Lexibank
+export exceeds Node/V8's single-string limit.
 
 then start the application:
 
@@ -1424,14 +1485,15 @@ from a validation database containing the full real CLTS and Lexibank data. The
 export was re-imported into a fresh SQLite database in 48,379 statements with
 all Lexibank counts, Unicode markers, foreign keys, and integrity preserved.
 
-The final local Wrangler D1 import is pending on the development machine. Run:
+The local Wrangler import of the complete Lexibank database passed on the
+development machine using statement-safe parts. The existing website also
+passed its post-import regression check.
 
-```text
-npx wrangler d1 execute conlang-reference --local --file=./data/compiled/reference-d1.sql
-```
-
-The managed build environment blocked Wrangler from starting its local runtime;
-this was an environment restriction, not a SQL or data failure.
+The Step 4 exporter now contains 43 application tables and creates the part
+files automatically. Its SQL passed a clean 43-table SQLite round trip with
+matching counts, no foreign-key violations, and `PRAGMA integrity_check = ok`.
+A final local Wrangler import of the Step 4 build is pending on the development
+machine.
 
 The public production site has intentionally not been deployed yet.
 
@@ -1473,11 +1535,10 @@ CLTS — COMPLETE
 ↓
 PHOIBLE — COMPLETE
 ↓
-Lexibank — COMPLETE IN SQLITE; LOCAL D1 CHECK PENDING
+Lexibank — COMPLETE
 ↓
-inventory statistics
-↓
-phoneme co-occurrence and dependencies
+inventory statistics and phoneme dependencies — COMPLETE IN SQLITE;
+LOCAL D1 CHECK PENDING
 ↓
 phonotactics
 ↓
@@ -1766,7 +1827,7 @@ c990be8 Complete PHOIBLE integration for phonology engine
 
 ---
 
-## LEXIBANK — COMPLETE IN SQLITE; LOCAL D1 CHECK PENDING
+## LEXIBANK — COMPLETE
 
 Lexibank Analysed v2.2/v2.2.1 is integrated and fully validated against its
 physical source files.
@@ -1808,32 +1869,68 @@ occurrences of generated refs:          48,194
 forms containing generated refs:        35,126
 ```
 
-The SQLite → D1 SQL exporter now includes all 39 application tables. A complete
+The SQLite → D1 SQL exporter includes all 39 application tables required at the
+Lexibank milestone. A complete
 678.74 MB export containing full real CLTS and Lexibank data was successfully
-re-imported into a clean SQLite database in 48,379 statements. The final local
-Wrangler D1 execution must still be run on the development machine.
+re-imported into a clean SQLite database in 48,379 statements. The local
+Wrangler D1 import and website regression check also passed using statement-safe
+parts.
+
+---
+
+## STEP 4 — COMPLETE IN SQLITE; LOCAL D1 CHECK PENDING
+
+Apply the new schema once from the repository root:
+
+```text
+python -c "from pathlib import Path; import sqlite3; c=sqlite3.connect(r'data\compiled\reference.sqlite'); c.executescript(Path(r'database\schema\008_phonology_statistics.sql').read_text(encoding='utf-8')); c.close()"
+```
+
+Then build and validate the derived evidence:
+
+```text
+python scripts\analysis\build_phonology_statistics.py
+python scripts\validation\validate_phonology_statistics.py
+```
+
+The verified PHOIBLE v2.0 observations now produce:
+
+```text
+analysis records:                         1
+inventory profiles:                  3,020
+segment prevalence rows:             6,350
+segment co-occurrence rows:         570,320
+```
+
+The prevalence rows cover all 3,175 segments at both inventory and language
+scope. Co-occurrence evidence includes:
+
+```text
+inventory observed pairs:           256,181
+inventory expected absences:          1,931
+language observed pairs:            311,088
+language expected absences:           1,120
+```
+
+The builder and validator preserve the five repeated PHOIBLE source
+observations while collapsing them to presence for inventory statistics. The
+complete 43-table SQL export passes a clean SQLite round trip and is emitted in
+Wrangler-safe parts no larger than 64 MiB.
 
 ---
 
 # NEXT TASK
 
-First complete the final local D1 check:
-
-```text
-npx wrangler d1 execute conlang-reference --local --file=./data/compiled/reference-d1.sql
-```
+First apply and build Step 4, regenerate the D1 export, and complete its final
+local D1 check using the exact commands in the Cloudflare section.
 
 Then begin:
 
-**PHONOLOGY ENGINE V1 — STEP 4: inventory statistics and phoneme co-occurrence/dependencies.**
+**PHONOLOGY ENGINE V1 — STEP 5: phonotactics from Lexibank forms.**
 
 Continue in this order:
 
 ```text
-inventory statistics
-↓
-phoneme co-occurrence and dependencies
-↓
 phonotactics
 ↓
 syllable structures
