@@ -18,6 +18,15 @@ OUTPUT_FILE = (
     / "reference-d1.sql"
 )
 
+OUTPUT_PARTS_DIRECTORY = (
+    ROOT / "data" / "compiled" / "reference-d1-parts"
+)
+
+# Wrangler reads a --file argument into a JavaScript string. Keeping each
+# part below 64 MiB avoids V8's string-size limit while preserving complete
+# SQL statement boundaries.
+MAX_D1_PART_BYTES = 64 * 1024 * 1024
+
 
 # ---------------------------------------------------------
 # TABLE EXPORT ORDER
@@ -49,6 +58,12 @@ TABLE_ORDER = [
     "phoible_segment_feature",
     "phoible_inventory_segment",
     "phoible_inventory_reference",
+
+    # Phonology Engine statistics
+    "phonology_analysis",
+    "phonology_inventory_profile",
+    "phonology_segment_prevalence",
+    "phonology_segment_cooccurrence",
 
     # Lexibank
     "lexibank_collection",
@@ -154,6 +169,64 @@ def write_batch(
 
     output.write(",\n".join(values))
     output.write(";\n\n")
+
+
+def split_d1_export(source_path, output_directory, max_part_bytes):
+    output_directory.mkdir(parents=True, exist_ok=True)
+    for old_part in output_directory.glob("reference-d1-part-*.sql"):
+        old_part.unlink()
+
+    part_number = 0
+    part_size = 0
+    part_file = None
+    part_path = None
+    statement_lines = []
+    parts = []
+
+    def open_part():
+        nonlocal part_number, part_size, part_file, part_path
+        part_number += 1
+        part_size = 0
+        part_path = output_directory / (
+            f"reference-d1-part-{part_number:03d}.sql"
+        )
+        part_file = part_path.open("w", encoding="utf-8", newline="\n")
+        parts.append(part_path)
+
+    def write_statement(statement):
+        nonlocal part_size, part_file
+        statement_size = len(statement.encode("utf-8"))
+        if statement_size > max_part_bytes:
+            raise RuntimeError(
+                "A single SQL statement exceeds the D1 part-size limit.\n\n"
+                f"Statement bytes: {statement_size:,}\n"
+                f"Limit bytes:     {max_part_bytes:,}"
+            )
+        if part_file is None:
+            open_part()
+        elif part_size and part_size + statement_size > max_part_bytes:
+            part_file.close()
+            open_part()
+        part_file.write(statement)
+        part_size += statement_size
+
+    try:
+        with source_path.open("r", encoding="utf-8", newline="") as source:
+            for line in source:
+                statement_lines.append(line)
+                candidate = "".join(statement_lines)
+                if sqlite3.complete_statement(candidate):
+                    write_statement(candidate)
+                    statement_lines.clear()
+        if statement_lines and "".join(statement_lines).strip():
+            raise RuntimeError(
+                "The D1 export ended with an incomplete SQL statement."
+            )
+    finally:
+        if part_file is not None:
+            part_file.close()
+
+    return parts
 
 
 # ---------------------------------------------------------
@@ -495,6 +568,24 @@ connection.close()
 
 
 # ---------------------------------------------------------
+# CREATE WRANGLER-SAFE PART FILES
+# ---------------------------------------------------------
+
+print()
+print("Creating Wrangler-safe SQL parts...")
+
+d1_parts = split_d1_export(
+    OUTPUT_FILE,
+    OUTPUT_PARTS_DIRECTORY,
+    MAX_D1_PART_BYTES
+)
+
+for part in d1_parts:
+    part_size_mb = part.stat().st_size / 1024 / 1024
+    print(f"  {part.name}: {part_size_mb:.2f} MB")
+
+
+# ---------------------------------------------------------
 # FINAL REPORT
 # ---------------------------------------------------------
 
@@ -526,6 +617,10 @@ print(
     f"Tables exported: "
     f"{len(TABLE_ORDER)}"
 )
+
+print(f"Wrangler-safe parts: {len(d1_parts)}")
+print("Parts directory:")
+print(OUTPUT_PARTS_DIRECTORY)
 
 print("---------------------------------------------")
 print()
