@@ -2329,11 +2329,53 @@ verification remains pending: Chromium was absent and its download failed in
 the execution environment. Do not describe browser interactions or the user's
 installation as independently verified yet.
 
+## STEP 10 — EXECUTABLE SOUND-SYSTEM SPECIFICATION IMPLEMENTED; LOCAL VALIDATION PENDING
+
+Step 10 adds a strict, versioned JSON construction contract without changing
+SQLite or D1. The implementation lives in:
+
+```text
+scripts/analysis/phonology_specification.py
+scripts/analysis/define_sound_system.py
+examples/sound-system-specification.json
+tests/test_phonology_specification.py
+docs/PHONOLOGY_SPECIFICATION.md
+```
+
+The canonical model records stable sound IDs and IPA displays, exact sound
+classes, mapping status/features, onset/coda choices, `C*VC*` templates,
+normalized weights, boundary/special/unknown-token policies, user-declared
+prosody, evidence references, default provenance, and explicit deferred rule
+families. Descriptive evidence is stored separately and never becomes a hard
+construction rule implicitly.
+
+Strict validation rejects unknown fields, duplicate or contradictory sound
+identities/classes, invalid mappings, impossible templates, non-consonant
+clusters, boundary/phoneme collisions, non-positive weights, prosody
+contradictions, and unsupported extension rules. Canonical JSON round-trips
+without information loss. SHA-256 namespaced decisions make syllable-count and
+template choices reproducible for the same specification version, model
+version, seed, namespace, and index.
+
+The CLI reads no database and runs no build/import:
+
+```bat
+python scripts\analysis\define_sound_system.py --demo
+```
+
+Expected banner: `SOUND-SYSTEM SPECIFICATION VALID`. It writes only the
+canonical compiled JSON and prints a deterministic preview.
+
 # NEXT TASK
 
-After the user confirms Step 9 works, implement Step 10's versioned executable
-sound-system specification, then Step 11's seeded inventory/form generation.
-Follow `docs/ROADMAP.md` for the explicit prosody/allophony/harmony support gate
-and subsequent root generator. Do not mark Phonology Engine v1 complete merely
-because the database and evaluator exist. Do not integrate grammar sources or
-later stages before completing the supported phonology generation milestone.
+Complete Step 10's focused local checkpoint:
+
+```bat
+python scripts\analysis\define_sound_system.py --demo
+python -m unittest discover -s tests -p "test_phonology_specification.py" -v
+```
+
+Do not rebuild SQLite or rerun the full D1 import. If both commands pass, mark
+Step 10 complete and begin Step 11: seeded coherent inventory and form
+generation from this specification. Step 12 remains the explicit support gate
+for prosodic rules, allophony, and harmony.

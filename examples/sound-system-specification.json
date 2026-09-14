@@ -1,0 +1,313 @@
+{
+  "specification_version": "1.0.0",
+  "model_version": "phonology-v1-step10",
+  "name": "Step 10 demonstration sound system",
+  "seed": "step10-demo-seed",
+  "phonemes": [
+    {
+      "id": "a",
+      "ipa": "a",
+      "class": "vowel",
+      "features": {
+        "height": "open",
+        "backness": "front"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    },
+    {
+      "id": "i",
+      "ipa": "i",
+      "class": "vowel",
+      "features": {
+        "height": "close",
+        "backness": "front"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    },
+    {
+      "id": "k",
+      "ipa": "k",
+      "class": "consonant",
+      "features": {
+        "manner": "stop",
+        "place": "velar",
+        "voicing": "voiceless"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    },
+    {
+      "id": "m",
+      "ipa": "m",
+      "class": "consonant",
+      "features": {
+        "manner": "nasal",
+        "place": "bilabial",
+        "voicing": "voiced"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    },
+    {
+      "id": "n",
+      "ipa": "n",
+      "class": "consonant",
+      "features": {
+        "manner": "nasal",
+        "place": "alveolar",
+        "voicing": "voiced"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    },
+    {
+      "id": "p",
+      "ipa": "p",
+      "class": "consonant",
+      "features": {
+        "manner": "stop",
+        "place": "bilabial",
+        "voicing": "voiceless"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    },
+    {
+      "id": "s",
+      "ipa": "s",
+      "class": "consonant",
+      "features": {
+        "manner": "fricative",
+        "place": "alveolar",
+        "voicing": "voiceless"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    },
+    {
+      "id": "t",
+      "ipa": "t",
+      "class": "consonant",
+      "features": {
+        "manner": "stop",
+        "place": "alveolar",
+        "voicing": "voiceless"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    },
+    {
+      "id": "u",
+      "ipa": "u",
+      "class": "vowel",
+      "features": {
+        "height": "close",
+        "backness": "back"
+      },
+      "mapping": {
+        "status": "user_defined",
+        "source": null,
+        "source_id": null,
+        "candidates": []
+      }
+    }
+  ],
+  "classes": {
+    "consonants": [
+      "k",
+      "m",
+      "n",
+      "p",
+      "s",
+      "t"
+    ],
+    "vowels": [
+      "a",
+      "i",
+      "u"
+    ],
+    "tones": []
+  },
+  "construction": {
+    "onsets": [
+      [],
+      [
+        "k"
+      ],
+      [
+        "m"
+      ],
+      [
+        "n"
+      ],
+      [
+        "p"
+      ],
+      [
+        "s"
+      ],
+      [
+        "t"
+      ],
+      [
+        "s",
+        "t"
+      ]
+    ],
+    "codas": [
+      [],
+      [
+        "k"
+      ],
+      [
+        "m"
+      ],
+      [
+        "n"
+      ],
+      [
+        "p"
+      ],
+      [
+        "s"
+      ],
+      [
+        "t"
+      ]
+    ],
+    "syllable_templates": [
+      {
+        "id": "ccv",
+        "shape": "CCV",
+        "weight": 0.1
+      },
+      {
+        "id": "cv",
+        "shape": "CV",
+        "weight": 0.5
+      },
+      {
+        "id": "cvc",
+        "shape": "CVC",
+        "weight": 0.3
+      },
+      {
+        "id": "v",
+        "shape": "V",
+        "weight": 0.1
+      }
+    ],
+    "syllable_count_weights": {
+      "1": 0.25,
+      "2": 0.5,
+      "3": 0.25
+    },
+    "boundaries": {
+      "component_token": "+",
+      "cross_component_sequences": "blocked",
+      "word_boundary_sequences": "blocked",
+      "special_markers": {
+        "tokens": [
+          "∼"
+        ],
+        "policy": "reject"
+      },
+      "unknown_phoneme_policy": "reject"
+    }
+  },
+  "prosody": {
+    "stress": {
+      "setting": "unknown",
+      "declaration": "unknown",
+      "position": null
+    },
+    "tone": {
+      "setting": "unknown",
+      "declaration": "unknown"
+    },
+    "length_contrast": {
+      "setting": "unknown",
+      "declaration": "unknown"
+    }
+  },
+  "extensions": {
+    "allophony": {
+      "status": "unknown",
+      "rules": []
+    },
+    "vowel_harmony": {
+      "status": "unknown",
+      "rules": []
+    },
+    "consonant_harmony": {
+      "status": "unknown",
+      "rules": []
+    }
+  },
+  "evidence": {
+    "status": "not_attached",
+    "references": [],
+    "notes": [
+      "Construction choices are not claims about cross-linguistic frequency."
+    ]
+  },
+  "provenance": {
+    "defaults": [
+      {
+        "field": "construction.boundaries",
+        "kind": "engineering_default",
+        "source": "phonology-v1-step10",
+        "note": "Boundaries block cross-boundary sequences; unknown and special tokens are rejected."
+      },
+      {
+        "field": "construction.syllable_templates",
+        "kind": "user_declared",
+        "source": "examples/sound-system-specification.json",
+        "note": "Illustrative templates and weights for the Step 10 demonstration."
+      },
+      {
+        "field": "phonemes",
+        "kind": "user_declared",
+        "source": "examples/sound-system-specification.json",
+        "note": "Illustrative inventory; source mappings have not been asserted."
+      }
+    ],
+    "notes": [
+      "Descriptive evidence may be attached later without changing hard construction rules."
+    ]
+  }
+}

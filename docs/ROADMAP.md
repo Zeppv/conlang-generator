@@ -1,6 +1,6 @@
 # Conlang Generator — roadmap and completion criteria
 
-Updated 2026-09-14, after the user confirmed Step 8 complete.
+Updated 2026-09-14, after the user installed Step 9 and Step 10 implementation was delivered.
 
 The goal is a generator in which vocabulary comes from a coherent language
 system and its history. A working database and an evidence evaluator are the
@@ -19,8 +19,8 @@ completion percentage while the later research and modeling scope is open.
 | Step 6: syllable candidates | User build passed | Possible/forced shapes under an explicit CV projection, with ambiguity and exclusions |
 | Step 7: prosody evidence | User build passed | Explicit stress, tone and length annotations; no inferred complete prosodic system |
 | Step 8: offline evaluator | User demonstration complete | Read-only evaluation of a supplied inventory, words, templates and proposed prosody |
-| Step 9: website evaluator | Implemented; local installation is the next user step | Compact serving snapshots, Worker evaluator, Phonology tab, downloadable results |
-| Sound-system generation | Not implemented | The evaluator currently evaluates a supplied proposal; it does not generate one |
+| Step 9: website evaluator | User installation/output supplied; committed checkpoint | Compact serving snapshots, Worker evaluator, Phonology tab, downloadable results |
+| Step 10: executable specification | Implemented; focused local validation pending | Versioned hard-rule contract, canonical JSON, strict contradictions, deterministic seeded decisions |
 | Root generation and later engines | Planned | Listed below with bounded deliverables and completion criteria |
 
 The source database has 57 application tables through Step 8. Step 9 adds three
@@ -57,6 +57,11 @@ example from the Phonology tab, and Concept Explorer still works. This is the
 application evaluator milestone, not completion of sound-system generation.
 
 ### Step 10 — define an executable sound system
+
+Implementation is delivered in `scripts/analysis/phonology_specification.py`,
+`scripts/analysis/define_sound_system.py`, the bundled example, focused tests,
+and `docs/PHONOLOGY_SPECIFICATION.md`. It is intentionally independent of the
+reference database and D1. Local focused validation is the remaining checkpoint.
 
 The next modeling task is a versioned phonology specification. It needs to hold:
 
