@@ -20,7 +20,8 @@ completion percentage while the later research and modeling scope is open.
 | Step 7: prosody evidence | User build passed | Explicit stress, tone and length annotations; no inferred complete prosodic system |
 | Step 8: offline evaluator | User demonstration complete | Read-only evaluation of a supplied inventory, words, templates and proposed prosody |
 | Step 9: website evaluator | User installation/output supplied; committed checkpoint | Compact serving snapshots, Worker evaluator, Phonology tab, downloadable results |
-| Step 10: executable specification | Implemented; focused local validation pending | Versioned hard-rule contract, canonical JSON, strict contradictions, deterministic seeded decisions |
+| Step 10: executable specification | Complete; user validation passed | Versioned hard-rule contract, canonical JSON, strict contradictions, deterministic seeded decisions |
+| Step 11: inventory and form generation | Implemented; focused local validation pending | Exact-size seeded inventories, bounded form construction, hard-rule validation, attached evidence report |
 | Root generation and later engines | Planned | Listed below with bounded deliverables and completion criteria |
 
 The source database has 57 application tables through Step 8. Step 9 adds three
@@ -61,7 +62,8 @@ application evaluator milestone, not completion of sound-system generation.
 Implementation is delivered in `scripts/analysis/phonology_specification.py`,
 `scripts/analysis/define_sound_system.py`, the bundled example, focused tests,
 and `docs/PHONOLOGY_SPECIFICATION.md`. It is intentionally independent of the
-reference database and D1. Local focused validation is the remaining checkpoint.
+reference database and D1. The user confirmed the demo and all nine focused
+tests pass; Step 10 is complete.
 
 The next modeling task is a versioned phonology specification. It needs to hold:
 
@@ -83,6 +85,12 @@ invalid or contradictory construction settings fail clearly, and the same
 version and seed reproduce the same decisions.
 
 ### Step 11 — generate coherent inventories and word forms
+
+Implementation is delivered in `scripts/analysis/phonology_generator.py`,
+`scripts/analysis/generate_phonology.py`, a bounded request example, focused
+tests, and `docs/PHONOLOGY_GENERATOR.md`. It reads reference evidence through a
+read-only connection and writes only its JSON report. Local focused validation
+is the remaining checkpoint.
 
 Build the first actual phonology generator using the specification:
 

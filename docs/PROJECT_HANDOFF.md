@@ -2366,16 +2366,48 @@ python scripts\analysis\define_sound_system.py --demo
 Expected banner: `SOUND-SYSTEM SPECIFICATION VALID`. It writes only the
 canonical compiled JSON and prints a deterministic preview.
 
-# NEXT TASK
+## STEP 10 — COMPLETE
 
-Complete Step 10's focused local checkpoint:
+The user ran the bundled demonstration successfully. The canonical fingerprint
+was `8b7801cc8f7e769d12b8e1e113584c8be843a2af33e6deb841c9fe5dfd6debb1`,
+the deterministic preview completed, and all nine focused tests passed in
+0.316 seconds. No SQLite or D1 operation was used.
 
-```bat
-python scripts\analysis\define_sound_system.py --demo
-python -m unittest discover -s tests -p "test_phonology_specification.py" -v
+## STEP 11 — SEEDED INVENTORY AND FORM GENERATION IMPLEMENTED; LOCAL VALIDATION PENDING
+
+Step 11 adds:
+
+```text
+scripts/analysis/phonology_generator.py
+scripts/analysis/generate_phonology.py
+examples/phonology-generation-request.json
+tests/test_phonology_generator.py
+docs/PHONOLOGY_GENERATOR.md
 ```
 
-Do not rebuild SQLite or rerun the full D1 import. If both commands pass, mark
-Step 10 complete and begin Step 11: seeded coherent inventory and form
-generation from this specification. Step 12 remains the explicit support gate
-for prosodic rules, allophony, and harmony.
+The generator selects exact consonant/vowel/tone targets from Step 10's sound
+pool, preserves required/excluded IDs, and uses PHOIBLE prevalence, stored pair
+evidence, and shared features only as transparent proposal weights. It then
+constructs bounded components from usable declared templates and exact allowed
+onset/coda sequences. Components reset at `+`; special markers cannot become
+phonemes. Duplicate rejection has an explicit attempt limit and failure.
+
+Every form is independently checked against hard construction rules. The
+generated proposal is passed to the existing evaluator in the same read-only
+transaction; unusual valid outputs are retained with evidence gaps. Tone
+realization, stress application, allophony, and harmony remain explicitly
+deferred to Step 12.
+
+# NEXT TASK
+
+Pull and run only the Step 11 demo and focused tests:
+
+```bat
+git pull --ff-only origin main
+python scripts\analysis\generate_phonology.py --demo
+python -m unittest discover -s tests -p "test_phonology_generator.py" -v
+```
+
+Do not rebuild SQLite and do not rerun the D1 sync/import. If the demo and tests
+pass, mark Step 11 complete. Then begin Step 12's explicit supported-rule gate
+for stress/tone/length realization, allophony, and harmony.

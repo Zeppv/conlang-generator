@@ -1,0 +1,20 @@
+{
+  "name": "Step 11 demonstration generation",
+  "consonant_target": 4,
+  "vowel_target": 2,
+  "tone_target": 0,
+  "required_phoneme_ids": [
+    "p",
+    "a"
+  ],
+  "excluded_phoneme_ids": [],
+  "word_count": 20,
+  "component_count_weights": {
+    "1": 0.9,
+    "2": 0.1
+  },
+  "duplicate_policy": "reject",
+  "maximum_attempts_per_word": 128,
+  "inventory_scope": "language",
+  "reference_doculect": "northeuralex-eng"
+}
