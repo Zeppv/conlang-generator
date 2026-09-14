@@ -1,6 +1,6 @@
 # Conlang Generator — roadmap and completion criteria
 
-Updated 2026-09-14, after the user installed Step 9 and Step 10 implementation was delivered.
+Updated 2026-09-14, after the user validated the Step 12A demonstration and focused tests.
 
 The goal is a generator in which vocabulary comes from a coherent language
 system and its history. A working database and an evidence evaluator are the
@@ -22,7 +22,7 @@ completion percentage while the later research and modeling scope is open.
 | Step 9: website evaluator | User installation/output supplied; committed checkpoint | Compact serving snapshots, Worker evaluator, Phonology tab, downloadable results |
 | Step 10: executable specification | Complete; user validation passed | Versioned hard-rule contract, canonical JSON, strict contradictions, deterministic seeded decisions |
 | Step 11: inventory and form generation | Complete; user validation passed | Exact-size seeded inventories, bounded form construction, hard-rule validation, attached evidence report |
-| Step 12A: explicit rule core | Implemented; focused local validation pending | Bounded stress, tone, length, allophony and separate harmony rule contracts with derivation traces |
+| Step 12A: explicit rule core | User demonstration and seven focused tests passed | Bounded stress, tone, length, allophony and separate harmony rule contracts with derivation traces |
 | Root generation and later engines | Planned | Listed below with bounded deliverables and completion criteria |
 
 The source database has 57 application tables through Step 8. Step 9 adds three
@@ -90,8 +90,8 @@ version and seed reproduce the same decisions.
 Implementation is delivered in `scripts/analysis/phonology_generator.py`,
 `scripts/analysis/generate_phonology.py`, a bounded request example, focused
 tests, and `docs/PHONOLOGY_GENERATOR.md`. It reads reference evidence through a
-read-only connection and writes only its JSON report. Local focused validation
-is the remaining checkpoint.
+read-only connection and writes only its JSON report. The user confirmed the
+demonstration and all eight focused tests passed.
 
 Build the first actual phonology generator using the specification:
 
@@ -114,8 +114,9 @@ examples across different inventory sizes and template types work.
 
 Step 12A's offline rule core is implemented in `scripts/analysis/phonology_rules.py`
 and `apply_phonology_rules.py`, with a rule-set example, representative tests,
-and an explicit support/deferred matrix. Local validation is pending. Website/API
-parity and the final v1 acceptance gate remain subsequent Step 12 checkpoints.
+and an explicit support/deferred matrix. The user realized 20 forms and all seven
+focused tests passed. Website/API parity, boundary and transformed-cluster review,
+and the final v1 acceptance gate remain subsequent Step 12 checkpoints.
 
 The existing annotations do not identify complete stress systems or harmony rules.
 Before claiming these features, implement and label their actual support:

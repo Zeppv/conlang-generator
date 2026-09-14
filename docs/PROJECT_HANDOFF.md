@@ -2405,7 +2405,7 @@ Hard-rule validation passed, the evaluator report was attached, and all eight
 focused tests passed in 0.261 seconds. The three evidence gaps were expected
 deferred-feature labels. SQLite and D1 were not modified.
 
-## STEP 12A — EXPLICIT OFFLINE RULE CORE IMPLEMENTED; LOCAL VALIDATION PENDING
+## STEP 12A — USER DEMONSTRATION AND FOCUSED TESTS PASSED
 
 New files:
 
@@ -2429,16 +2429,32 @@ allophony, bidirectional harmony and opaque interactions remain deferred and
 visible. The core reads Step 11 JSON and writes a separate realization report;
 it does not access the database.
 
+## Step 12A validation checkpoint — 2026-09-14
+
+The user pulled `c5192af`, realized all 20 forms successfully, and ran all
+seven focused rule tests successfully in 0.044 seconds. The rule-set fingerprint
+was `5dd3a337540db491782561c4715559880adf306f6fac63fb58901a0fcf15295c`.
+SQLite and D1 were not modified. Do not ask for the same demonstration again.
+
 # NEXT TASK
 
-Pull and validate Step 12A:
+Continue Step 12B: Python/TypeScript rule parity, website controls and
+transformation output, saved-run reproduction, and the final Phonology Engine
+v1 supported/deferred acceptance gate. Full Step 12 is not complete.
 
-```bat
-git pull --ff-only origin main
-python scripts\analysis\apply_phonology_rules.py
-python -m unittest discover -s tests -p "test_phonology_rules.py" -v
-```
+Before porting, resolve two code-review findings with focused regression cases:
 
-Do not rebuild SQLite or sync/import D1. After this passes, continue Step 12
-with Python/Worker parity, website controls/output, and the final Phonology
-Engine v1 supported/deferred acceptance gate.
+- `_context_matches` returns early for `any`, allowing a component boundary
+  token to satisfy that context even for a component-domain rule.
+- Harmony replacements check selected-inventory membership, but transformed
+  clusters are not checked against the declared onset/coda constraints.
+  Decide and document the hard-rule policy for phonological outputs.
+
+Development execution became unavailable during dependency installation:
+`exec-server transport disconnected`; automatic recovery timed out. No rule
+fix, TypeScript port or website integration was implemented or tested in that
+session. This checkpoint changes documentation only.
+
+Check execution availability before resuming. Reuse the existing source database,
+compact D1 snapshots and saved Step 11 output. Run focused fixture-based tests
+and application checks; do not rebuild SQLite or repeat a full D1 import.
