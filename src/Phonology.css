@@ -1,0 +1,36 @@
+.workspaceNav { display: flex; gap: 8px; width: min(1200px, calc(100% - 40px)); margin: 24px auto 0; }
+.workspaceNav button, .phonology button { font: inherit; cursor: pointer; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 16px; background: white; color: #243247; }
+.workspaceNav button[aria-pressed="true"] { background: #101828; color: white; border-color: #101828; }
+.phonology.page { padding-top: 40px; }
+.phonology h1 { font-size: clamp(2.3rem, 5vw, 4rem); line-height: 1.08; }
+.phonologyLayout { display: grid; grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.65fr); gap: 24px; align-items: start; }
+.evidenceColumn { display: grid; gap: 20px; min-width: 0; }
+.proposal fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.proposal label { display: block; margin: 18px 0 7px; font-size: .9rem; font-weight: 650; }
+.proposal input, .proposal textarea, .proposal select { display: block; width: 100%; background: #fff; color: #101828; border: 1px solid #cbd5e1; border-radius: 8px; padding: 11px; font: inherit; }
+.proposal textarea { resize: vertical; line-height: 1.65; }
+.phonology .help { font-size: .83rem; color: #526174; line-height: 1.6; margin: 8px 0 16px; }
+.phonology .primaryButton { background: #14594e; color: white; width: 100%; margin-top: 18px; border-color: #14594e; font-weight: 700; }
+.phonology button:disabled { opacity: .6; cursor: wait; }
+.phonology :is(button,input,textarea,select,summary):focus-visible, .workspaceNav button:focus-visible { outline: 3px solid #319d8c; outline-offset: 3px; }
+.phonology details { margin-top: 18px; }
+.phonology summary { cursor: pointer; font-weight: 600; line-height: 1.5; }
+.phonology p { line-height: 1.6; }
+.phonology h2 { font-size: 1.3rem; line-height: 1.35; }
+.emptyEvidence { background: #eef5f3; border-color: #c5dbd5; }
+.emptyEvidence h2 { max-width: 420px; font-size: 1.65rem; }
+.evidenceMetrics { display: flex; flex-wrap: wrap; gap: 24px; padding: 12px 0 24px; }
+.evidenceMetrics div { display: grid; gap: 6px; }
+.evidenceMetrics strong { font-size: 1.65rem; letter-spacing: -.03em; color: #164f46; }
+.evidenceMetrics span { font-size: .8rem; color: #526174; }
+.tableScroll { overflow-x: auto; margin: 16px 0; }
+.phonology table { width: 100%; border-collapse: collapse; font-size: .86rem; text-align: left; }
+.phonology th { font-weight: 600; color: #526174; background: #f6f8fa; }
+.phonology th, .phonology td { padding: 10px 9px; border-bottom: 1px solid #e5eaf0; }
+.phonology .ipa { font-size: 1.12rem; }
+.reportHeading { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.reportHeading button { flex-shrink: 0; font-size: .8rem; }
+.phonology pre { font-size: .75rem; overflow: auto; max-height: 320px; }
+.phonology li { line-height: 1.6; }
+@media (max-width: 800px) { .phonologyLayout { grid-template-columns: 1fr; } .phonology .panel { padding: 20px; } }
+@media (max-width: 480px) { .reportHeading { flex-direction: column; } }

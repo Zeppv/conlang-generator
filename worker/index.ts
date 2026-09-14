@@ -1,3 +1,5 @@
+import { phonologyApi } from './phonology-api.ts';
+
 type ConceptSummary = {
 	id: number;
 	concepticon_id: string;
@@ -28,6 +30,10 @@ export default {
 	async fetch(request, env): Promise<Response> {
 
 		const url = new URL(request.url);
+
+		if (url.pathname.startsWith('/api/phonology/')) {
+			return phonologyApi(request, env.conlang_reference);
+		}
 
 		// ------------------------------------------------
 		// HEALTH CHECK

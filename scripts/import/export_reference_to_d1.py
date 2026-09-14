@@ -81,6 +81,26 @@ TABLE_ORDER = [
     "lexibank_feature_code",
     "lexibank_feature_value",
 
+    # Step 5: children of Lexibank (optional until Step 5 has been built).
+    "phonotactic_analysis",
+    "phonotactic_profile",
+    "phonotactic_token_stat",
+    "phonotactic_bigram",
+    "phonotactic_shape",
+
+    # Step 6: CV projection model, optional until built.
+    "syllable_analysis",
+    "syllable_profile",
+    "syllable_candidate",
+    "syllable_exclusion",
+
+    # Step 7: explicit annotation coverage, optional until built.
+    "prosody_analysis",
+    "prosody_profile",
+    "prosody_annotation",
+    "prosody_token_feature",
+    "prosody_feature_stat",
+
     # WordNet
     "wordnet_synset",
     "wordnet_lemma",
@@ -279,6 +299,22 @@ actual_tables = {
 
 
 expected_tables = set(TABLE_ORDER)
+
+# Keep the existing 43-table milestone exportable; reject partial Step 5 schemas.
+step5_tables = {table for table in TABLE_ORDER if table.startswith("phonotactic_")}
+if not (actual_tables & step5_tables):
+    TABLE_ORDER = [table for table in TABLE_ORDER if table not in step5_tables]
+    expected_tables -= step5_tables
+
+step6_tables = {table for table in TABLE_ORDER if table.startswith("syllable_")}
+if not (actual_tables & step6_tables):
+    TABLE_ORDER = [table for table in TABLE_ORDER if table not in step6_tables]
+    expected_tables -= step6_tables
+
+step7_tables = {table for table in TABLE_ORDER if table.startswith("prosody_")}
+if not (actual_tables & step7_tables):
+    TABLE_ORDER = [table for table in TABLE_ORDER if table not in step7_tables]
+    expected_tables -= step7_tables
 
 
 missing_from_database = (

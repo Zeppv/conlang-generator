@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
+import Phonology from './Phonology';
 
 type Concept = {
 	id: number;
@@ -38,6 +39,7 @@ type ConceptResponse = {
 };
 
 function App() {
+	const [workspace, setWorkspace] = useState<'concepts' | 'phonology'>('concepts');
 	const [search, setSearch] = useState("mountain");
 	const [results, setResults] = useState<Concept[]>([]);
 	const [selected, setSelected] = useState<ConceptDetail | null>(null);
@@ -129,6 +131,12 @@ function App() {
 	}
 
 	return (
+		<>
+		<nav className="workspaceNav" aria-label="Workspace">
+			<button type="button" aria-pressed={workspace === 'concepts'} onClick={() => setWorkspace('concepts')}>Concept Explorer</button>
+			<button type="button" aria-pressed={workspace === 'phonology'} onClick={() => setWorkspace('phonology')}>Phonology</button>
+		</nav>
+		{workspace === 'phonology' ? <Phonology /> :
 		<main className="page">
 			<header className="hero">
 				<p className="eyebrow">
@@ -353,7 +361,8 @@ function App() {
 					)}
 				</section>
 			</div>
-		</main>
+		</main>}
+		</>
 	);
 }
 

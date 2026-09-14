@@ -46,13 +46,34 @@ Lexibank integration is complete and validated through local Cloudflare D1.
 The existing Concept Explorer still works after the full Lexibank D1 import;
 there is intentionally no Lexibank UI yet.
 
-Phonology Engine Step 4 now has a schema, deterministic statistics builder, and
-row-by-row validator. Its generated D1 SQL passes a clean SQLite round trip. A
-final local Wrangler import must be run on the development machine.
+Step 4 passed the user's SQLite build and independent validator (3,020 profiles,
+6,350 prevalence rows, 570,320 co-occurrence rows). The user reports completing
+the restarted 14-part local D1 import. Post-import D1 counts were not captured;
+do not describe that as independently verified or require another full import.
 
-The next task after that final D1 check is:
+Step 5's one-command build and validator passed on the user's full imported
+SQLite database (user confirmed `passed`). Do not ask them to rebuild it.
 
-**PHONOLOGY ENGINE V1 — STEP 5: build phonotactics from Lexibank forms.**
+Step 6's bounded syllable-shape candidate build and validator passed on the
+user's full SQLite database (user confirmed `passed`). Its ambiguity and
+exclusions are model limits, not gold syllabification.
+
+Step 7's stress/tone/length evidence build and independent validator passed on
+the user's full database (user confirmed `passed`). Do not rebuild Steps 5-7.
+
+Step 8's demonstration completed on the user's database (user confirmed
+`complete`). It implements a read-only phonology evidence evaluator with component
+metrics and coverage for proposed inventories, sample words, syllable templates
+and prosody; it does not manufacture a universal naturalism percentage.
+
+Step 9 implements the Phonology website tab, a matching Worker evaluator, and a
+compact local D1 serving sync. User installation is pending. Do not rerun Steps
+5–8 or the full reference export. Use the Step 9 instructions below.
+
+**The detailed current roadmap and completion criteria are in `docs/ROADMAP.md`.**
+Evidence evaluation is implemented; generation of sound systems and forms is
+still outstanding. Prosody marks are not complete stress rules, allophony or
+harmony models. Those capabilities remain explicit roadmap work.
 
 Phonology Engine v1 order:
 
@@ -63,18 +84,22 @@ PHOIBLE — COMPLETE
 ↓
 Lexibank — COMPLETE
 ↓
-inventory statistics and phoneme dependencies — COMPLETE IN SQLITE;
-LOCAL D1 CHECK PENDING
+inventory statistics and phoneme dependencies — SQLITE VALIDATED;
+LOCAL D1 IMPORT REPORTED COMPLETE
 ↓
-phonotactics
+phonotactics — STEP 5 VALIDATED ON USER DATABASE
 ↓
-syllable structures
+syllable structures — STEP 6 CANDIDATE MODEL VALIDATED ON USER DATABASE
 ↓
-stress and related phonological systems
+stress and related phonological systems — STEP 7 VALIDATED ON USER DATABASE
 ↓
-phonology naturalism scoring
+phonology evidence evaluation — USER DEMONSTRATION COMPLETE
 ↓
-PHONOLOGY ENGINE V1
+website evaluator — STEP 9 IMPLEMENTED, USER INSTALL PENDING
+↓
+executable sound-system specification and generation — PLANNED
+↓
+explicit prosody/allophony/harmony support and PHONOLOGY V1 ACCEPTANCE
 ```
 
 Do not move on to Grambank, UniMorph, Universal Dependencies, WOLD, Wiktionary, grammar, or later roadmap stages until Phonology Engine v1 is clean and complete.
@@ -1419,9 +1444,10 @@ Relationship display currently prioritizes important evidence sources such as Da
 
 The frontend automatically selects the best/exact search result when appropriate.
 
-No dedicated CLTS, PHOIBLE, or phonology UI has been added yet.
-
-Do not prioritize phonology UI until the underlying Phonology Engine v1 data/statistics pipeline is complete and clean.
+Step 9 adds a Phonology tab alongside Concept Explorer. It accepts a proposed
+inventory, sample tokenized words, templates and one selected doculect, and
+reports evidence and coverage with a JSON download. It is an evaluator, not a
+sound-system generator. See `docs/PHONOLOGY_WEB.md` for serving and installation.
 
 ---
 
@@ -1441,7 +1467,11 @@ Local development uses:
 .wrangler/state/
 ```
 
-To regenerate the local D1 reference database:
+The following full export is an INITIAL SETUP / DISASTER RECOVERY procedure,
+not the current update workflow. Do not delete working local D1 state as a routine
+update. Step 9 uses `python scripts\\analysis\\sync_phonology_web.py` instead.
+
+To deliberately regenerate the entire local D1 reference database:
 
 ```text
 python scripts\import\export_reference_to_d1.py
@@ -1492,14 +1522,20 @@ passed its post-import regression check.
 The Step 4 exporter now contains 43 application tables and creates the part
 files automatically. Its SQL passed a clean 43-table SQLite round trip with
 matching counts, no foreign-key violations, and `PRAGMA integrity_check = ok`.
-A final local Wrangler import of the Step 4 build is pending on the development
-machine.
+The user reported completing the restarted Step 4 local Wrangler import. Exact
+post-import counts were not captured. Step 9 independently transfers and verifies
+the summaries it needs instead of requiring another full bootstrap import.
 
 The public production site has intentionally not been deployed yet.
 
 ---
 
 # Current Roadmap
+
+The expanded roadmap, support boundaries and completion criteria are maintained
+in `docs/ROADMAP.md`. The older source-history sections below remain useful as
+provenance, but the current milestone and Step 9 instructions supersede old
+pending-import or repeated full-export directions.
 
 ## COMPLETE — Data Foundation
 
@@ -1537,18 +1573,22 @@ PHOIBLE — COMPLETE
 ↓
 Lexibank — COMPLETE
 ↓
-inventory statistics and phoneme dependencies — COMPLETE IN SQLITE;
-LOCAL D1 CHECK PENDING
+inventory statistics and phoneme dependencies — SQLITE VALIDATED;
+LOCAL D1 IMPORT REPORTED COMPLETE
 ↓
-phonotactics
+phonotactics — STEP 5 USER BUILD PASSED
 ↓
-syllable structures
+syllable candidates — STEP 6 USER BUILD PASSED
 ↓
-stress and related phonological systems
+explicit prosody evidence — STEP 7 USER BUILD PASSED
 ↓
-phonology naturalism scoring
+offline evaluator — STEP 8 USER DEMONSTRATION COMPLETE
 ↓
-PHONOLOGY ENGINE V1
+website evaluator — STEP 9 IMPLEMENTED, USER INSTALL PENDING
+↓
+sound-system specification, generation and explicit rule support
+↓
+PHONOLOGY ENGINE V1 ACCEPTANCE
 ```
 
 The Phonology Engine must not simply select random IPA symbols.
@@ -1878,7 +1918,7 @@ parts.
 
 ---
 
-## STEP 4 — COMPLETE IN SQLITE; LOCAL D1 CHECK PENDING
+## STEP 4 — SQLITE VALIDATED; LOCAL D1 IMPORT REPORTED COMPLETE
 
 Apply the new schema once from the repository root:
 
@@ -1919,26 +1959,381 @@ Wrangler-safe parts no larger than 64 MiB.
 
 ---
 
-# NEXT TASK
+# STEP 5 — VALIDATED ON USER DATABASE
 
-First apply and build Step 4, regenerate the D1 export, and complete its final
-local D1 check using the exact commands in the Cloudflare section.
+Run the new Step 5 command once from the repository root:
 
-Then begin:
-
-**PHONOLOGY ENGINE V1 — STEP 5: phonotactics from Lexibank forms.**
-
-Continue in this order:
-
-```text
-phonotactics
-↓
-syllable structures
-↓
-stress and related phonological systems
-↓
-phonology naturalism scoring
+```bat
+python scripts\analysis\build_phonotactics.py
 ```
 
-Do not start Grambank, UniMorph, Universal Dependencies, WOLD, Wiktionary,
-grammar, or later roadmap stages until Phonology Engine v1 is complete.
+The command checks the imported source, applies `009_phonotactics.sql`, builds
+five derived tables, validates all results against normalized form-token rows,
+and commits only on success. Failure rolls back both schema and data changes,
+preserving any previous Step 5 results. Existing source tables are never edited.
+It prints progress every 100 doculects and saves a machine-readable report at
+`data/compiled/phonotactics-report.json`. No extra Python dependencies are needed.
+The database must already exist; a typo in the path cannot create an empty DB.
+
+The tables contain:
+
+- `phonotactic_analysis`: source fingerprint, method version, totals and policy.
+- `phonotactic_profile`: per-doculect form/token and structural-marker counts.
+- `phonotactic_token_stat`: token occurrences, form presence, literal initial/final counts.
+- `phonotactic_bigram`: raw adjacent-token occurrences and form presence.
+- `phonotactic_shape`: exact upstream CV-template/prosodic-string combinations.
+
+Every source form is one observation. Duplicate pronunciations, variants and
+loans are not silently deduplicated. Shared Glottocodes do not collapse distinct
+doculects. Tones and unmaterialized/generated phonemes remain in the sequence;
+`+` and `∼` remain structural/special tokens, not phonemes. A pair containing one
+of those markers records literal adjacency to a marker; it is not a phoneme
+cluster. No pairs skip markers, tones, or word edges. Initial/final counts use
+literal form positions, even when a marker or tone occupies that position.
+Consumers must join token types when requesting phoneme-only evidence.
+Templates are word-shape evidence, not syllable parses or stress annotations.
+Sampling is corpus-weighted within each doculect, not cross-linguistic prevalence.
+
+The independent validator reads `lexibank_form_segment`, verifies token order
+against raw `Segments`, and recomputes every derived row. It also checks total
+coverage, source fingerprint, derived foreign keys and SQLite quick integrity.
+Run it separately only when diagnosing or checking an existing build:
+
+```bat
+python scripts\validation\validate_phonotactics.py
+```
+
+Automated edge-case/rollback tests (small fixtures, no downloads):
+
+```bat
+python -m unittest discover -s tests -v
+```
+
+Developer validation: all 13 automated tests pass, including one-command CLI
+reruns, transaction rollback, token corruption detection, and real SQL export
+round trips for the 43- and 48-table milestones. `npm run lint` and
+`npm run build` pass. The full 1,740,092-form corpus at Lexibank commit
+`46a2c4c63ae2cbb698cfd5ceb34cfee613eba8c4` also passed build + independent
+validation in an isolated minimal-input test database:
+
+| Table | Rows |
+| --- | ---: |
+| phonotactic_analysis | 1 |
+| phonotactic_profile | 5,501 |
+| phonotactic_token_stat | 213,140 |
+| phonotactic_bigram | 1,391,790 |
+| phonotactic_shape | 320,393 |
+
+The corpus test checked all 9,657,998 normalized token positions. It did not
+rebuild the full semantic/reference imports or run D1. The user subsequently
+confirmed the one-command Step 5 run passed on their full SQLite database. The optional developer
+corpus test is `python tests/run_phonotactics_corpus.py`; it requires the local
+Lexibank CLDF checkout and automatically deletes its isolated temporary DB.
+
+## Faster development workflow — supersedes repeated full-D1 instructions
+
+The local SQLite database is the authoritative analysis build. D1 is a serving
+copy, not a required checkpoint after every analysis edit. Keep the working D1
+copy and website running while offline analysis develops.
+
+- Run build + focused independent validation automatically as one command.
+- Keep logs/reports locally; ask the user for the final summary or an error only.
+- Run full raw-source audits at source/version changes, not after every derived edit.
+- Sync D1 at an API/UI integration milestone, or before deployment.
+- Prefer dependency-aware updates of changed tables at that milestone. A safe
+  incremental D1 updater is NOT implemented yet; do not pretend this exporter
+  updates an existing database or run it over existing tables.
+- Retain full export + clean import as a bootstrap/recovery/regression tool,
+  not the default daily workflow. Do not delete local D1 state for Step 5.
+
+The full exporter understands 43, 48, 52 and 57 application tables at the
+pre-Step-5, Step-5, Step-6 and Step-7 milestones. Partial optional schemas are rejected.
+The exporter is still a clean-bootstrap exporter, not an incremental updater.
+No changes to Worker routes or the website are included here.
+
+## Step 6 — bounded syllable-shape candidates — USER BUILD PASSED
+
+Run once from the repository root:
+
+```bat
+python scripts\analysis\build_syllable_candidates.py
+```
+
+One command applies `010_syllable_candidates.sql`, builds the analysis, validates
+every derived row, commits only on success, and writes
+`data/compiled/syllable-candidates-report.json`. It uses the already imported
+Lexibank tables, with no additional packages, downloads, Step 5 rebuild or D1
+operations. Failures roll back both new schema and derived records. Step 5 and
+all source data remain unchanged. Progress is printed every 100 doculects.
+
+Model version `1.0.0` makes its assumptions explicit:
+
+- Each eligible upstream `V` supplies one projected nucleus; `C` is peripheral.
+- `T` is omitted only from this CV projection; original tones remain stored.
+- `+` divides independent components for this model; it is not asserted to be
+  a syllable boundary in actual speech.
+- Intervocalic consonant runs admit every coda/onset split. There is no guessed
+  maximal-onset rule, sonority constraint, ambisyllabicity or extrasyllabicity.
+- One exclusion reason per whole form is assigned in this order: special token,
+  explicitly syllabic C, explicitly non-syllabic simple V, unsupported CV class,
+  empty component, component without V, adjacent Vs after removing T. Do not
+  partially count the other components of an excluded form.
+- A CLTS-described diphthong represented by one V token can supply one model
+  nucleus. Adjacent V tokens are excluded rather than guessing hiatus/fusion.
+- Unmarked syllabic consonants cannot be recovered from this source. Model
+  eligibility is not a claim that every nucleus in actual speech is known.
+
+The full-source CV inspection found exact alignment to the segmented tokens
+in all 1,740,092 forms. Classes were C, V, T, + and 0; the unsupported class 0
+appeared 112 times. Upstream creates CV classes with CLTS and prosodic strings
+with LingPy; it does not write a gold syllable parse. Source implementation:
+`data/raw/lexibank/lexibank_lexibank_analysed.py`.
+
+Four new tables retain both coverage and ambiguity:
+
+| Table | Meaning |
+| --- | --- |
+| syllable_analysis | Method policy, source fingerprint and source form count |
+| syllable_profile | Total/eligible forms and projected/ambiguous nucleus positions per doculect |
+| syllable_candidate | Possible and forced nucleus-position support for each onset/coda length |
+| syllable_exclusion | Excluded-form counts by reason and doculect |
+
+For instance, `VCV` admits `V.CV` and `VC.V`. It supplies two ambiguous nucleus
+positions. Shape V has two possible slots, VC one, and CV one; none is forced.
+In contrast, `CCVCC` supplies one forced CCVCC slot under this model.
+`forced_slots` means forced by the stated projection assumptions, not observed
+syllabification. `possible_slots` counts positions admitting a shape across
+alternatives, so its sum can exceed the number of projected nuclei. Neither
+count is a normalized probability or a claim about a language's phonotactics.
+These candidates should inform later choices, not become hard generator rules.
+
+The production builder calculates candidates from consonant-run lengths. Its
+validator independently calculates them from allowable start/end positions
+around each V, checks every row, source fingerprint, coverage, foreign keys and
+SQLite quick integrity. Automated tests also exhaustively enumerate complete
+word parses for short CV words; rollback, duplicate weighting, exclusions and
+CLI execution are covered. Optional full-corpus developer check:
+
+```bat
+python tests/run_phonotactics_corpus.py --syllables
+```
+
+Developer verification: all 24 automated tests pass, including the 43/48/52
+table exporter round trips and complete-partition enumeration for short CV
+words. The actual pinned Lexibank corpus passed Step 6 build + independent
+validation in isolated minimal source tables (not the user's full DB or D1):
+
+| Measure | Count |
+| --- | ---: |
+| Source forms | 1,740,092 |
+| Eligible forms | 1,510,076 |
+| Excluded forms | 230,016 |
+| Doculect profiles | 5,501 |
+| Projected nucleus positions | 3,374,422 |
+| Ambiguous positions | 2,621,826 |
+| Candidate rows | 53,341 |
+
+Exclusions were adjacent Vs (198,219 forms), vowel-free components (25,847),
+explicitly syllabic consonants (2,754), special markers (1,919), explicitly
+non-syllabic simple vowels (587), empty components (578), and unsupported
+classes (112). These are model limitations/coverage, not invalid source data.
+
+GitHub connection check for this session: the plugin reports installed/enabled,
+but no GitHub repository tools were exposed, and a Git push dry run still lacked
+configured credentials. No repository changes were pushed. Step 6 is delivered
+as an incremental patch on top of the user's already-applied Step 5 patch.
+
+## Step 7 — explicit prosody evidence — USER BUILD PASSED
+
+Run once from the repository root:
+
+```bat
+python scripts\analysis\build_prosody_evidence.py
+```
+
+This command applies `011_prosody_evidence.sql`, builds and independently
+validates the results in one transaction, then writes
+`data/compiled/prosody-evidence-report.json`. A failed build/validation rolls back
+new schema and derived data; previous results and source data remain intact.
+It needs only Python's standard library and the already imported Lexibank
+tables. It does not rebuild Steps 5/6, download data, or touch D1/the website.
+
+Five tables preserve annotation evidence rather than diagnose language systems:
+
+| Table | Meaning |
+| --- | --- |
+| prosody_analysis | Method version, source fingerprint, policy and total forms |
+| prosody_profile | Per-doculect corpus size; system classification stays `unassessed` |
+| prosody_annotation | IPA stress-marker coverage separately in Form, Value and Segments |
+| prosody_token_feature | Exact token-to-description feature mapping |
+| prosody_feature_stat | Token occurrences, form presence, distinct token counts and examples |
+
+Stress-marker policy: count U+02C8 (`ˈ`) and U+02CC (`ˌ`) only. The
+[official IPA chart](https://www.internationalphoneticassociation.org/content/ipa-chart)
+identifies these as primary and secondary stress signs. A glyph occurrence
+remains transcription evidence, not an automatically established stress system.
+Do not infer stress from ASCII apostrophes, acute/grave accents, capitalization,
+CV classes or prosodic strings. Source fields may differ and must not be summed
+as disjoint form counts. Examples are the earliest matching local form IDs.
+
+`observed` means the specified annotation occurs; `not_observed` means it was
+not found in available input; `missing_input` means all values of that field in
+the doculect are null, empty or whitespace-only. None means the language lacks
+stress/tone/quantity. The build does not infer stress position, metrical rules,
+tone-system complexity or phonemic length contrast.
+
+Token features are explicit imported tone type and exact whitespace-delimited
+words in Lexibank's CLTS-derived phoneme descriptions: `tone`, `primary-stress`,
+`secondary-stress`, `long`, `mid-long`, `ultra-short`. The exact word `long`
+does not match `mid-long`; repeated descriptors in complex tokens count once
+per token occurrence. A compound/diphthong with length on one component is
+evidence that the token carries a length descriptor, not a duration estimate.
+Features can overlap within a token/form. Unmaterialized CLTS references remain
+eligible through their preserved Lexibank descriptions. Boundary/special tokens
+never become phonemes or receive descriptor-derived features.
+
+The builder counts token multiplicities and field markers. Its independent
+validator reconstructs exact feature membership, counts per-form matches and
+marker positions, compares every result and example, checks source fingerprint,
+coverage, foreign keys and SQLite quick integrity. Standalone validation is
+available for diagnosis but is unnecessary after a successful build:
+
+```bat
+python scripts\validation\validate_prosody_evidence.py
+```
+
+Developer validation: 36 automated tests passed, including missing versus
+unobserved evidence, repeated markers/tokens, compound descriptions, provenance,
+rollback, deterministic reruns, CLI/standalone validation and 43/48/52/57-table
+SQL export compatibility. All 1,740,092 forms and 9,657,998 tokens from the pinned
+Lexibank release also passed in isolated minimal source tables. This is not a
+run on the user's full database or a D1 validation. Results:
+
+| Table | Rows |
+| --- | ---: |
+| prosody_analysis | 1 |
+| prosody_profile | 5,501 |
+| prosody_annotation | 33,006 |
+| prosody_token_feature | 829 |
+| prosody_feature_stat | 38,507 |
+
+| Field | Forms with primary mark | Forms with secondary mark |
+| --- | ---: | ---: |
+| Form | 16,917 | 190 |
+| Value | 9,429 | 216 |
+| Segments | 0 | 0 |
+
+Explicit token-feature form counts: standalone tone 216,783; attached tone
+19,831; long 226,369; mid-long 2,851; ultra-short 1,462; primary/secondary
+stress descriptors both 0. These are overlapping corpus observations, not
+counts of tonal languages or contrastive systems. The absence of stress from
+Segments must not erase the evidence retained in Form/Value.
+
+Optional developer corpus test (not a required user command):
+
+```bat
+python tests/run_phonotactics_corpus.py --prosody
+```
+
+## Step 8 — offline phonology evaluator — USER DEMONSTRATION COMPLETE
+
+Run from the project root:
+
+```bat
+python scripts\analysis\evaluate_phonology.py --demo
+```
+
+Expected completion message: `PHONOLOGY EVALUATION COMPLETE`. It writes
+`data/compiled/phonology-evaluation.json`. The demonstration proposal is
+`examples/phonology-proposal.json`; custom proposals use `--input path.json`.
+The database is opened read-only inside a consistent read transaction. There
+is no new schema, importer, builder, data download or D1 operation. The database
+remains at 57 tables. The report file is the only normal output write.
+
+Reusable evaluation logic is in `scripts/analysis/phonology_evaluator.py`.
+The input contract, formulas, coverage and limitations are documented in
+`docs/PHONOLOGY_EVALUATOR.md`. The demo compares against `northeuralex-eng`
+explicitly; English is not a universal naturalism benchmark. Omitting a
+reference doculect skips lexical comparisons rather than silently pooling data.
+
+Inventory mapping uses exact PHOIBLE strings. The evaluator reports prevalence
+and stored pair associations in the selected language/inventory scope, plus
+inventory-size midrank percentiles when mapping is complete. It preserves
+`not_stored` separately from stored expected absences. Unknown inventory tokens
+are not treated as invalid sounds. Rare segments and unusual sizes receive no
+automatic penalty.
+
+Lexical components report selected-doculect adjacency and edge evidence, Step 6
+candidate-shape support with exclusions, and Step 7 annotation evidence.
+Known-pair observation fractions always include separate mapping coverage;
+zero denominators and unsupported claims remain null/unknown. Prosody remains
+unassessed as a language system. The overall score is null: there is no validated
+calibration combining these different populations into a universal percentage.
+Input consistency covers declared-token membership and structural-marker syntax,
+not an assertion of grammaticality or successful syllabification.
+
+Method metadata/fingerprints are included in reports. Missing/unsupported builds
+and obvious source-count inconsistencies fail clearly. Full source scans are not
+repeated during evaluation; it consumes the already validated build snapshots.
+
+Step 8 verification: all 48 automated tests passed, including read-only execution,
+unknown coverage, missing evidence, boundary handling and mismatched snapshots.
+The optional `python tests/run_phonotactics_corpus.py --evaluate` integration
+check also passed with the real PHOIBLE statistics and all 961 analysed forms
+for `northeuralex-eng`. Steps 5–7 were built and validated for that doculect in
+an isolated database. The demo mapped 10/10 inventory tokens, found 2/5 sample
+adjacencies in the selected corpus, and reported 637/961 forms eligible for
+syllable candidates. Evaluation alone took 0.073 seconds in the development
+environment, excluding fixture construction. This is not a full user-database
+or D1 round trip, and does not guarantee the same runtime elsewhere.
+
+## Step 9 — website evaluator and compact local D1 snapshots
+
+Implemented in `worker/phonology-evaluator.ts`, `worker/phonology-api.ts`,
+`src/Phonology.tsx` and `scripts/analysis/sync_phonology_web.py`. Python remains
+the reference evaluator. Existing Concept Explorer handlers are retained.
+
+New routes: GET `/api/phonology/status`, POST `/api/phonology/evaluate`.
+The same input limits, exact matching, component metrics and unknown semantics
+apply. Responses add a serving snapshot ID to the evaluator report.
+
+The serving snapshot contains the full PHOIBLE statistics, token catalog and
+only explicitly selected doculect summaries. Default: `northeuralex-eng`. Other
+doculects can be added with repeated `--doculect` options. No raw forms, token
+positions or semantic data are imported by this sync. The source SQLite DB is
+opened read-only. Three additional D1 serving tables hold versioned payload
+chunks, import receipts and the active/previous snapshot pointer.
+
+Imports use bounded 4 MiB SQL parts and resume completed parts by content hash.
+The script reads back all summary payloads and checks their SHA-256 fingerprints
+before switching the active snapshot in one statement. The Worker checks hashes
+again on read and pins one immutable snapshot per request. Previous snapshots
+are retained. No remote D1 access or public deployment occurs.
+
+User commands after applying the Step 9 patch:
+
+```bat
+python scripts\analysis\sync_phonology_web.py
+npm run dev
+```
+
+Expected sync banner: `PHONOLOGY WEB SYNC COMPLETE`. Open the Phonology tab and
+evaluate the example. No source rebuild, manual SQL loop or full export required.
+See `docs/PHONOLOGY_WEB.md` for recovery, adding doculects and verification scope.
+
+Verification: 55 automated tests pass, including 15 complete report parity cases.
+Local D1/Worker integration passes on source-derived fixtures and on real PHOIBLE
+statistics plus the 961-form English doculect summaries. The latter serving
+payload is 36.44 MiB in ten small parts. Production build and lint pass. Browser
+verification remains pending: Chromium was absent and its download failed in
+the execution environment. Do not describe browser interactions or the user's
+installation as independently verified yet.
+
+# NEXT TASK
+
+After the user confirms Step 9 works, implement Step 10's versioned executable
+sound-system specification, then Step 11's seeded inventory/form generation.
+Follow `docs/ROADMAP.md` for the explicit prosody/allophony/harmony support gate
+and subsequent root generator. Do not mark Phonology Engine v1 complete merely
+because the database and evaluator exist. Do not integrate grammar sources or
+later stages before completing the supported phonology generation milestone.

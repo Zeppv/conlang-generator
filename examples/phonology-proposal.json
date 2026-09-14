@@ -1,0 +1,9 @@
+{
+  "name": "Demonstration sound system",
+  "inventory": ["p", "t", "k", "m", "n", "s", "l", "a", "i", "u"],
+  "inventory_scope": "language",
+  "reference_doculect": "northeuralex-eng",
+  "words": [["p", "a"], ["t", "i"], ["k", "u"], ["m", "a", "n"]],
+  "syllable_templates": ["CV", "CVC"],
+  "prosody": {"stress": "unknown", "tone": "unknown", "length_contrast": "unknown"}
+}
