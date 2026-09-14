@@ -1,0 +1,49 @@
+{
+  "rules_version": "1.0.0",
+  "name": "Step 12 bounded demonstration rules",
+  "stress": {
+    "status": "configured",
+    "rule": {
+      "type": "fixed",
+      "position": "initial",
+      "marker": "ˈ"
+    }
+  },
+  "tone": {
+    "status": "unknown",
+    "system": null,
+    "realization": null,
+    "tone_ids": []
+  },
+  "length": {
+    "status": "unknown",
+    "strategy": null,
+    "probability": null,
+    "pairs": []
+  },
+  "allophony": {
+    "status": "configured",
+    "rules": [
+      {
+        "id": "intervocalic_t_tap",
+        "underlying_id": "t",
+        "surface_ipa": "ɾ",
+        "left": "vowel",
+        "right": "vowel",
+        "domain": "component"
+      }
+    ]
+  },
+  "vowel_harmony": {
+    "status": "unknown",
+    "rules": []
+  },
+  "consonant_harmony": {
+    "status": "unknown",
+    "rules": []
+  },
+  "notes": [
+    "Fixed stress is user-declared, not inferred from the Step 7 annotations.",
+    "The allophony rule is inactive when /t/ is absent or outside its stated context."
+  ]
+}

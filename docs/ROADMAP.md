@@ -21,7 +21,8 @@ completion percentage while the later research and modeling scope is open.
 | Step 8: offline evaluator | User demonstration complete | Read-only evaluation of a supplied inventory, words, templates and proposed prosody |
 | Step 9: website evaluator | User installation/output supplied; committed checkpoint | Compact serving snapshots, Worker evaluator, Phonology tab, downloadable results |
 | Step 10: executable specification | Complete; user validation passed | Versioned hard-rule contract, canonical JSON, strict contradictions, deterministic seeded decisions |
-| Step 11: inventory and form generation | Implemented; focused local validation pending | Exact-size seeded inventories, bounded form construction, hard-rule validation, attached evidence report |
+| Step 11: inventory and form generation | Complete; user validation passed | Exact-size seeded inventories, bounded form construction, hard-rule validation, attached evidence report |
+| Step 12A: explicit rule core | Implemented; focused local validation pending | Bounded stress, tone, length, allophony and separate harmony rule contracts with derivation traces |
 | Root generation and later engines | Planned | Listed below with bounded deliverables and completion criteria |
 
 The source database has 57 application tables through Step 8. Step 9 adds three
@@ -110,6 +111,11 @@ passes its declared construction rules, constrained requests terminate, and
 examples across different inventory sizes and template types work.
 
 ### Step 12 — prosodic rules, allophony, harmony, and the v1 acceptance gate
+
+Step 12A's offline rule core is implemented in `scripts/analysis/phonology_rules.py`
+and `apply_phonology_rules.py`, with a rule-set example, representative tests,
+and an explicit support/deferred matrix. Local validation is pending. Website/API
+parity and the final v1 acceptance gate remain subsequent Step 12 checkpoints.
 
 The existing annotations do not identify complete stress systems or harmony rules.
 Before claiming these features, implement and label their actual support:

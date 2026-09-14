@@ -2398,16 +2398,47 @@ transaction; unusual valid outputs are retained with evidence gaps. Tone
 realization, stress application, allophony, and harmony remain explicitly
 deferred to Step 12.
 
+## STEP 11 — COMPLETE
+
+The user confirmed the demo generated 4 consonants, 2 vowels and 20 forms.
+Hard-rule validation passed, the evaluator report was attached, and all eight
+focused tests passed in 0.261 seconds. The three evidence gaps were expected
+deferred-feature labels. SQLite and D1 were not modified.
+
+## STEP 12A — EXPLICIT OFFLINE RULE CORE IMPLEMENTED; LOCAL VALIDATION PENDING
+
+New files:
+
+```text
+scripts/analysis/phonology_rules.py
+scripts/analysis/apply_phonology_rules.py
+examples/phonology-rules.json
+tests/test_phonology_rules.py
+docs/PHONOLOGY_RULES.md
+```
+
+The bounded rule contract supports fixed initial/final stress, lexical tone
+with separate or attached realization, seeded lexical phonemic-length pairs,
+context-conditioned surface allophony, and separate progressive/regressive
+feature harmony for vowels and consonants. Domains, triggers, targets, blockers,
+replacement maps, underlying IDs, surface tokens and derivation events are
+explicit. Unknown remains distinct from explicit absence.
+
+Automatic rule induction, metrical stress, tone sandhi, gradient/overlapping
+allophony, bidirectional harmony and opaque interactions remain deferred and
+visible. The core reads Step 11 JSON and writes a separate realization report;
+it does not access the database.
+
 # NEXT TASK
 
-Pull and run only the Step 11 demo and focused tests:
+Pull and validate Step 12A:
 
 ```bat
 git pull --ff-only origin main
-python scripts\analysis\generate_phonology.py --demo
-python -m unittest discover -s tests -p "test_phonology_generator.py" -v
+python scripts\analysis\apply_phonology_rules.py
+python -m unittest discover -s tests -p "test_phonology_rules.py" -v
 ```
 
-Do not rebuild SQLite and do not rerun the D1 sync/import. If the demo and tests
-pass, mark Step 11 complete. Then begin Step 12's explicit supported-rule gate
-for stress/tone/length realization, allophony, and harmony.
+Do not rebuild SQLite or sync/import D1. After this passes, continue Step 12
+with Python/Worker parity, website controls/output, and the final Phonology
+Engine v1 supported/deferred acceptance gate.
