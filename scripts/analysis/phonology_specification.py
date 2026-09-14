@@ -286,8 +286,10 @@ def _boundaries(value, phonemes):
     if component in markers:
         _fail(path, "component boundary token cannot also be a special marker")
     displays = {item["ipa"] for item in phonemes}
-    if component in displays or displays.intersection(markers):
-        _fail(path, "boundary and special-marker tokens cannot also be phoneme IPA tokens")
+    stable_ids = {item["id"] for item in phonemes}
+    structural = {component, *markers}
+    if displays.intersection(structural) or stable_ids.intersection(structural):
+        _fail(path, "boundary and special-marker tokens cannot also be phoneme IDs or IPA tokens")
     return {"component_token": component, "cross_component_sequences": crossing,
             "word_boundary_sequences": word_crossing,
             "special_markers": {"tokens": sorted(markers), "policy": policy},

@@ -109,6 +109,9 @@ class SpecificationTests(unittest.TestCase):
         boundary_phoneme = self.value()
         boundary_phoneme["construction"]["boundaries"]["component_token"] = "a"
         cases.append(boundary_phoneme)
+        boundary_id = self.value()
+        boundary_id["construction"]["boundaries"]["component_token"] = "p"
+        cases.append(boundary_id)
         zero_weight = self.value()
         zero_weight["construction"]["syllable_count_weights"]["2"] = 0
         cases.append(zero_weight)

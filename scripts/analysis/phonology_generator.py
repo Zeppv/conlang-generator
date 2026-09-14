@@ -458,10 +458,13 @@ def validate_generated(specification, request, inventory, forms):
                  for item in spec["construction"]["syllable_templates"]}
     boundary = spec["construction"]["boundaries"]["component_token"]
     special = set(spec["construction"]["boundaries"]["special_markers"]["tokens"])
+    by_id = {item["id"]: item for item in inventory}
     issues = []
     identities = set()
     for word in forms:
         rebuilt = []
+        if word["component_count"] != len(word["components"]):
+            issues.append({"word": word["word_index"], "kind": "component_count_mismatch"})
         for component_index, component in enumerate(word["components"]):
             if component_index:
                 rebuilt.append(boundary)
@@ -470,6 +473,9 @@ def validate_generated(specification, request, inventory, forms):
                 shape = templates.get(syllable["template_id"])
                 if shape != syllable["shape"]:
                     issues.append({"word": word["word_index"], "kind": "template_mismatch"})
+                traced_shape = "C" * len(syllable["onset"]) + "V" + "C" * len(syllable["coda"])
+                if shape != traced_shape:
+                    issues.append({"word": word["word_index"], "kind": "template_shape_mismatch"})
                 if tuple(syllable["onset"]) not in onsets or tuple(syllable["coda"]) not in codas:
                     issues.append({"word": word["word_index"], "kind": "cluster_not_allowed"})
                 if syllable["nucleus"] not in vowels:
@@ -483,6 +489,9 @@ def validate_generated(specification, request, inventory, forms):
             rebuilt.extend(component_ids)
         if rebuilt != word["phoneme_ids"]:
             issues.append({"word": word["word_index"], "kind": "word_trace_mismatch"})
+        expected_ipa = [by_id[item]["ipa"] if item in by_id else item for item in rebuilt]
+        if expected_ipa != word["ipa_tokens"]:
+            issues.append({"word": word["word_index"], "kind": "ipa_trace_mismatch"})
         content = [item for item in rebuilt if item != boundary]
         if not set(content) <= inventory_ids:
             issues.append({"word": word["word_index"], "kind": "outside_inventory"})

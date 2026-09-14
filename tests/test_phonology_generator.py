@@ -132,12 +132,15 @@ class GeneratorTests(unittest.TestCase):
             generate(self.db, spec, constrained, evaluate)
 
     def test_different_seed_changes_deterministic_run(self):
-        a = generate(self.db, small_spec("one"), request(), evaluate)
-        b = generate(self.db, small_spec("two"), request(), evaluate)
+        first = small_spec("one")
+        second = small_spec("two")
         self.assertNotEqual(
-            [word["phoneme_ids"] for word in a["forms"]],
-            [word["phoneme_ids"] for word in b["forms"]],
+            first.decision_unit("generator-seed-check", 0),
+            second.decision_unit("generator-seed-check", 0),
         )
+        a = generate(self.db, first, request(), evaluate)
+        b = generate(self.db, second, request(), evaluate)
+        self.assertNotEqual(a["specification_fingerprint"], b["specification_fingerprint"])
 
     def test_cli_uses_read_only_database_and_writes_separate_report(self):
         with tempfile.TemporaryDirectory(prefix="phonology-generator-") as folder:

@@ -22,12 +22,26 @@ DEFAULT_OUTPUT = ROOT / "data" / "compiled" / "phonology-generation.json"
 MAXIMUM_BYTES = 1024 * 1024
 
 
+def no_duplicate_keys(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError(f"Duplicate JSON object key in request: {key!r}")
+        value[key] = item
+    return value
+
+
 def read_json(path, label):
     if not path.is_file():
         raise FileNotFoundError(f"Could not find {label}: {path}")
     if path.stat().st_size > MAXIMUM_BYTES:
         raise ValueError(f"{label} exceeds the 1 MiB limit")
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(
+        path.read_text(encoding="utf-8"),
+        object_pairs_hook=no_duplicate_keys,
+        parse_constant=lambda constant: (_ for _ in ()).throw(
+            ValueError(f"Invalid JSON constant in request: {constant}")),
+    )
 
 
 def main():
