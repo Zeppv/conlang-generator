@@ -3,8 +3,9 @@
 Step 12B adds a website workspace for an existing Step 11 generation. It applies
 explicit rules, shows underlying and realized forms with derivation traces,
 retains the saved evidence, and exports all inputs needed to reproduce the run.
-It does not generate a new inventory in the browser. Full specification authoring
-and fresh inventory/form generation remain the Step 10/11 Python workflows.
+Step 12C now also generates new inventories/forms through the existing compact
+website evidence path; see `PHONOLOGY_GENERATION_WEB.md`. Full specification
+authoring remains the Step 10 Python workflow.
 
 ## Use your existing forms
 
@@ -124,7 +125,7 @@ API checks used Node's Web Request/Response runtime. No new local or remote D1
 import was attempted. These limits do not invalidate the user's existing local
 installation, but they prevent claiming a new native Worker/browser sign-off.
 
-Next: confirm the page with the user's exported run, complete fresh-generation
-website integration through the existing compact evidence path, then assess the
-full Phonology Engine v1 acceptance gate. Step 12B is an implemented saved-run
-workspace checkpoint; full Step 12 remains open.
+The user subsequently supplied a 20-form page result with correct initial stress,
+intervocalic tapping, and browser/server agreement. Step 12B's local apply/load
+workflow is confirmed. Step 12C supplies fresh generation; its local functional
+confirmation and the full bounded v1 acceptance checkpoint remain open.

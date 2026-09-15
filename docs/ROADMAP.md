@@ -1,6 +1,6 @@
 # Conlang Generator — roadmap and completion criteria
 
-Updated 2026-09-15, after Step 12B saved-run workspace implementation and focused verification.
+Updated 2026-09-15, after user confirmation of Step 12B and implementation of Step 12C website generation.
 
 The goal is a generator in which vocabulary comes from a coherent language
 system and its history. A working database and an evidence evaluator are the
@@ -23,7 +23,8 @@ completion percentage while the later research and modeling scope is open.
 | Step 10: executable specification | Complete; user validation passed | Versioned hard-rule contract, canonical JSON, strict contradictions, deterministic seeded decisions |
 | Step 11: inventory and form generation | Complete; user validation passed | Exact-size seeded inventories, bounded form construction, hard-rule validation, attached evidence report |
 | Step 12A: explicit rule core | User demonstration and seven focused tests passed | Bounded stress, tone, length, allophony and separate harmony rule contracts with derivation traces |
-| Step 12B: saved-run rule workspace | Implemented; automated parity/build passed, browser confirmation pending | Load forms, edit rules, inspect traces/evidence, export/replay a full run |
+| Step 12B: saved-run rule workspace | User load/apply output confirms browser/server agreement | Load forms, edit rules, inspect traces/evidence, export/replay a full run |
+| Step 12C: website generation | Implemented; generation/snapshot parity and build passed, user functional check pending | New inventories/forms from existing compact evidence; saved-snapshot regeneration |
 | Root generation and later engines | Planned | Listed below with bounded deliverables and completion criteria |
 
 The source database has 57 application tables through Step 8. Step 9 adds three
@@ -120,8 +121,11 @@ focused tests passed. Step 12B now supplies the matching TypeScript rule engine,
 D1-independent realization API, saved-run website workspace, and portable replay.
 The boundary and transformed-cluster findings are resolved with regression tests.
 See `docs/PHONOLOGY_WORKSPACE.md` for verified scope and environment limits.
-Browser confirmation, fresh-generation website integration through the compact
-evidence path, and the final v1 acceptance gate remain open.
+The user confirmed Step 12B's 20-form browser/server result. Step 12C now
+generates fresh inventories/forms through the same compact snapshot and
+reproduces saved generations against their original evidence. See
+`docs/PHONOLOGY_GENERATION_WEB.md` for tested scope and bounds. The user
+functional check of that new workflow and final v1 acceptance record remain open.
 
 The existing annotations do not identify complete stress systems or harmony rules.
 Before claiming these features, implement and label their actual support:

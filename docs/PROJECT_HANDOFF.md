@@ -72,8 +72,9 @@ the checkpoint. Do not rerun Steps 5–8 or the full reference export.
 
 **The detailed current roadmap and completion criteria are in `docs/ROADMAP.md`.**
 Steps 10 and 11 are user-validated. Step 12A's rule demo and seven tests passed.
-Step 12B adds a saved-run rule workspace; its focused automated checks pass,
-while browser confirmation and the full v1 acceptance gate remain open.
+Step 12B's 20-form load/apply workflow is user-confirmed with browser/server
+agreement. Step 12C adds fresh website generation and saved-snapshot replay;
+automated checks pass and its local functional checkpoint remains open.
 
 Phonology Engine v1 order:
 
@@ -99,7 +100,7 @@ website evaluator — STEP 9 USER INSTALLATION/OUTPUT SUPPLIED
 ↓
 executable sound-system specification and generation — STEPS 10–11 USER VALIDATED
 ↓
-explicit rules — STEP 12A USER VALIDATED; STEP 12B SAVED-RUN WORKSPACE IMPLEMENTED
+explicit rules — STEPS 12A/B USER VALIDATED; STEP 12C WEBSITE GENERATION IMPLEMENTED
 ↓
 PHONOLOGY V1 ACCEPTANCE — OPEN
 ```
@@ -2460,24 +2461,51 @@ Native Cloudflare dev startup also failed on environment network-interface
 discovery; API verification used Node Web Request/Response with no D1 access.
 Do not describe those as a new native Worker/D1/browser acceptance pass.
 
+## Step 12B user checkpoint and Step 12C implementation — 2026-09-15
+
+The user supplied the actual 20-form Rule Workspace output. Initial stress and
+intervocalic t → ɾ are consistent; non-intervocalic t stays unchanged. The page
+reports “Rules applied. Browser and server results match.” Record load/apply as
+confirmed; do not ask for the same demonstration or test logs again. The paste
+omits collapsed evidence/deferred content and does not independently verify
+export/reimport or visual layout.
+
+Step 12C adds fresh generation controls and POST `/api/phonology/generate`.
+It ports the Python Step 11 selection and construction algorithms, preserving
+canonical requests, seeded choices, exact targets/required exclusions, bounded
+retries, independent construction checks, and evaluator evidence. Existing
+compact snapshots already hold all needed records. No schema change, source
+build, serving sync, D1 import, or production deployment was performed.
+
+Each website generation retains its original request and immutable snapshot ID.
+Saved generation replay reads that snapshot even after another becomes active,
+compares the complete generated report, and preserves the existing run on failure.
+Rule realization and Python workspace replay remain compatible. Details and
+bounds are in `docs/PHONOLOGY_GENERATION_WEB.md`.
+
+Verification: 38 focused tests pass, including 26 complete generator-report parity
+cases, prior rule/evaluator parity, serving-manifest/checksum reads on source-
+derived in-memory fixtures, snapshot-pinned replay, error/budget cases, and no-
+write serving behavior. Production build and lint pass. Native Cloudflare/browser
+validation of the new generation button is not independently claimed; the user's
+existing compact data/Worker installation supplies the final functional check.
+
 # NEXT TASK
 
-Have the user try the delivered saved-run workspace once:
+Ask for one functional check of the delivered fresh-generation workflow:
 
 ```bat
 git pull --ff-only origin main
-python scripts\analysis\apply_phonology_rules.py --bundle-output data\compiled\phonology-workspace.json
 npm run dev
 ```
 
-Open **Rule Workspace**, load `data/compiled/phonology-workspace.json`, and apply
-the rules. Export uses the already-generated forms. No repeated database build,
-D1 sync, full import, or user test-log paste is required.
+Open **Rule Workspace**, click **Generate inventory and forms**, then
+**Reproduce saved generation**. No file export command is needed for this new
+workflow. No database build, serving sync, full import, or test-log paste is needed.
 
-Then finish Step 12's fresh-generation application integration and acceptance
-checks through the existing compact evidence path. The rule workspace currently
-loads existing forms; it does not select a new inventory or generate new forms
-in the browser. Preserve the supported/deferred matrix and complete the v1 gate
-before moving to Step 13 semantic root planning. Continue running focused checks
-in the workspace where possible instead of handing routine verification back
-to the user.
+Once that works, record the bounded Phonology Engine v1 acceptance checkpoint,
+preserve the explicit supported/deferred list, and proceed to Step 13 semantic
+root planning. Start from the already integrated semantic pair/directional
+scores: produce a reviewable small root-family plan with stable concept/root
+identities, deliberate overrides, and evidence provenance before assigning forms.
+Do not start Grambank, UniMorph, or later engines at this point.

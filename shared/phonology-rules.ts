@@ -41,7 +41,7 @@ function pythonProbability(value: number): string {
 export function canonicalJson(value: any, path = '', numbersAsFloat = false): string {
   if (value === null || typeof value !== 'object') {
     if (typeof value === 'number' && !Number.isFinite(value)) fail('JSON', 'nonfinite number');
-    if ((numbersAsFloat || path === 'length.probability') && typeof value === 'number') return pythonProbability(value);
+    if ((numbersAsFloat || path === 'length.probability' || path.startsWith('component_count_weights.')) && typeof value === 'number') return pythonProbability(value);
     return JSON.stringify(value);
   }
   if (Array.isArray(value)) return '[' + value.map(v => canonicalJson(v, '', numbersAsFloat)).join(',') + ']';
@@ -280,7 +280,7 @@ function validateOutput(spec: Row, form: Row, ids: string[], selected: Set<strin
   });
   if (cursor !== ids.length) fail('form', 'phonological output length changed');
 }
-function validateGeneration(spec: Row, g: any) {
+export function validateGeneration(spec: Row, g: any) {
   object(g, 'generation');
   const pool = new Map<string, Row>(spec.phonemes.map((p: Row) => [p.id, p]));
   const selected = new Set<string>();
@@ -334,7 +334,7 @@ function contextMatches(context: string, side: string, index: number, ids: strin
   if (context === 'consonant') return classes.consonants.includes(ids[neighbor]);
   return context.startsWith('phoneme:') && ids[neighbor] === context.slice(8);
 }
-async function decisionUnit(spec: Row, namespace: string, index: number) {
+export async function decisionUnit(spec: Row, namespace: string, index: number) {
   const hash = await sha256([spec.specification_version, spec.model_version, spec.seed, namespace, String(index)].join('\0'));
   return Number(BigInt('0x' + hash.slice(0, 32))) / 2 ** 128;
 }

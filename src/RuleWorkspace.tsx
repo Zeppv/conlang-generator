@@ -4,6 +4,7 @@ import type { Row } from '../shared/phonology-rules';
 import example from '../examples/phonology-workspace.json';
 import './Phonology.css';
 import './RuleWorkspace.css';
+import GenerationControls from './GenerationControls';
 
 const pretty = (value: unknown) => JSON.stringify(value, null, 2);
 const message = (error: unknown) => error instanceof Error ? error.message : 'Unable to process this run.';
@@ -75,8 +76,9 @@ export default function RuleWorkspace() {
     <header className="hero">
       <p className="eyebrow">PHONOLOGY · RULE WORKSPACE</p>
       <h1>From sounds to spoken forms</h1>
-      <p className="intro">Apply explicit rules to a saved sound system. Follow each transformation and keep the full run for later.</p>
+      <p className="intro">Generate a sound system or open a saved run. Follow each transformation and keep the full run for later.</p>
     </header>
+    <GenerationControls bundle={bundle} rulesText={rulesText} busy={busy} onGenerated={load} />
     <section className="panel runLoader">
       <div><h2>Open a saved run</h2><p>Load a workspace JSON exported from your Step 11 forms, or try three illustrative forms.</p></div>
       <div className="runActions">
@@ -129,6 +131,8 @@ export default function RuleWorkspace() {
       <div className="evidenceColumn">
         <section className="panel">
           <h2>{spec.name}</h2><p className="help">{filename} · Seed: {spec.seed}</p>
+          {bundle.generation.inventory.counts && <p>{bundle.generation.inventory.counts.consonants} consonants · {bundle.generation.inventory.counts.vowels} vowels · {bundle.generation.inventory.counts.tones} tones</p>}
+          {bundle.generation.request && <details><summary>Inventory selection and generation settings</summary><pre>{pretty({request: bundle.generation.request, choices: bundle.generation.inventory.phonemes, evidence_gaps: bundle.generation.evidence.gaps, saved_evidence: bundle.generation.web_reproduction?.snapshot ?? null})}</pre></details>}
           <div className="soundInventory">{bundle.generation.inventory.phonemes.map((p: Row) => <span key={p.id}><strong className="ipa">{p.ipa}</strong><small>{p.id}</small></span>)}</div>
           <p>{bundle.generation.forms.length} forms · Construction checked on load and after length/harmony.</p>
         </section>

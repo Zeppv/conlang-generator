@@ -69,3 +69,7 @@ The completed inventory/forms are passed to the Step 8 evaluator in the same
 read transaction. Its component evidence, unknowns and null combined score are
 embedded in the generation report. Unusual but construction-valid designs are
 reported, not silently discarded.
+
+The Rule Workspace now offers the matching Step 12C website generator using the
+existing compact serving snapshot. See `PHONOLOGY_GENERATION_WEB.md` for controls,
+reproduction, request limits, and parity verification. No source rebuild is needed.
