@@ -48,6 +48,13 @@ override replay, a CLI, documentation, and 15 passing focused tests. It reads th
 existing semantic data. No forms, schema migrations, D1 writes, or website changes
 are part of this checkpoint. See `docs/SEMANTIC_ROOT_PLANNER.md` and NEXT TASK.
 
+Delivery: draft PR #1 at https://github.com/Zeppv/conlang-generator/pull/1,
+branch `codex/step-13-semantic-root-planning`. Automatic approval review rejected
+a direct push to default `main` without explicit authorization, so the tested
+changes were saved on the feature branch instead. Do not claim Step 13 is on
+`main` until the PR is actually merged. GitHub connector writes succeeded; shell
+git push lacked credentials. Do not retry the rejected main push indirectly.
+
 Semantic Engine v1 is complete and working.
 
 CLTS integration is complete and validated.
@@ -2546,12 +2553,17 @@ serving sync, D1 import, website deployment, or new dependency was needed.
 
 # NEXT TASK
 
-Run the delivered Step 13 demonstration against the user's existing data:
+Run the delivered Step 13 demonstration against the user's existing data. While
+PR #1 is unmerged, use its feature branch:
 
 ```bat
-git pull --ff-only origin main
+git fetch origin
+git switch codex/step-13-semantic-root-planning
 python scripts\analysis\plan_semantic_roots.py --demo
 ```
+
+After PR #1 is merged, the normal `main` / `git pull --ff-only origin main`
+workflow applies. Preserve any user-local edits when switching branches.
 
 This resolves seven exact demonstration glosses and writes
 `data/compiled/semantic-root-plan.json`. Missing/ambiguous glosses fail explicitly;
