@@ -34,7 +34,19 @@ The fundamental principle is:
 
 # Current Milestone
 
-## Phonology Engine v1 — IN PROGRESS
+## Step 13 semantic root planning — IMPLEMENTED; full-data demonstration pending
+
+The user believes Step 12C is done and explicitly requested continued development
+on 2026-09-15. Step 12C implementation and automated validation were already
+complete at `2f88d7b`. The exact local generation/reproduction result was not
+supplied in this turn, so native Phonology v1 acceptance remains unverified rather
+than being asserted as a pass. Follow the user's direction to continue; do not
+repeat old rebuilds or make that missing result a blocker for Step 13 work.
+
+Step 13 now provides an offline semantic root planner, portable evidence and
+override replay, a CLI, documentation, and 15 passing focused tests. It reads the
+existing semantic data. No forms, schema migrations, D1 writes, or website changes
+are part of this checkpoint. See `docs/SEMANTIC_ROOT_PLANNER.md` and NEXT TASK.
 
 Semantic Engine v1 is complete and working.
 
@@ -105,7 +117,9 @@ explicit rules — STEPS 12A/B USER VALIDATED; STEP 12C WEBSITE GENERATION IMPLE
 PHONOLOGY V1 ACCEPTANCE — OPEN
 ```
 
-Do not move on to Grambank, UniMorph, Universal Dependencies, WOLD, Wiktionary, grammar, or later roadmap stages until Phonology Engine v1 is clean and complete.
+The user's 2026-09-15 continuation request authorizes Step 13 work while the
+native Step 12C result remains unverified. Do not start Grambank, UniMorph,
+Universal Dependencies, WOLD, Wiktionary, grammar, or other later engines here.
 
 ---
 
@@ -2490,22 +2504,67 @@ write serving behavior. Production build and lint pass. Native Cloudflare/browse
 validation of the new generation button is not independently claimed; the user's
 existing compact data/Worker installation supplies the final functional check.
 
+## Step 13 — semantic root planner implemented, 2026-09-15
+
+The user requested continuation, believing Step 12C was done. Its implementation
+is present on GitHub; its recorded 38-test pass is historical evidence, not a new
+native/browser pass in this environment. The bounded phonology support/deferred
+matrix remains in `docs/PHONOLOGY_RULES.md`, `PHONOLOGY_WORKSPACE.md`, and
+`PHONOLOGY_GENERATION_WEB.md`.
+
+New implementation:
+
+```text
+scripts/analysis/semantic_root_planner.py
+scripts/analysis/plan_semantic_roots.py
+tests/test_semantic_root_planner.py
+docs/SEMANTIC_ROOT_PLANNER.md
+```
+
+The planner reads selected existing semantic rows in one read-only transaction.
+It distinguishes independent roots, colexification, shared-root family
+hypotheses, directional derivations, explicit ordered compounds, and deliberate
+lexical gaps. It retains alternatives and source records. Support weights remain
+engineering heuristics; calibrated probabilities are null. General relatedness
+does not imply derivation, and automatic colexification cannot propagate through
+unsupported chains. Compounds and gaps require explicit overrides.
+
+Project-namespaced root/lexeme IDs use internal concept IDs, not gloss strings.
+Saved plans retain their request, overrides, model version, evidence snapshot,
+and fingerprint. Full replay and revised choices work without SQLite. Invalid
+dependencies, corrupt reports, and contradictory requests fail clearly. The
+CLI bounds the concept set/evidence/output and protects input/database/raw paths.
+
+Verification: all 15 focused tests passed, using the actual repository schemas
+with synthetic fixture evidence. Tests cover lexical distinctions, directional
+support, replay, overrides, ordered compounds, stable identities, conservative
+colexification, cycles, unknown evidence, provenance, corruption, and strict
+input. A SQL authorizer rejects writes; CLI tests verify database bytes are
+unchanged and replay/revision still work after deleting the temporary database.
+No user's full reference database exists in this checkout. No source rebuild,
+serving sync, D1 import, website deployment, or new dependency was needed.
+
 # NEXT TASK
 
-Ask for one functional check of the delivered fresh-generation workflow:
+Run the delivered Step 13 demonstration against the user's existing data:
 
 ```bat
 git pull --ff-only origin main
-npm run dev
+python scripts\analysis\plan_semantic_roots.py --demo
 ```
 
-Open **Rule Workspace**, click **Generate inventory and forms**, then
-**Reproduce saved generation**. No file export command is needed for this new
-workflow. No database build, serving sync, full import, or test-log paste is needed.
+This resolves seven exact demonstration glosses and writes
+`data/compiled/semantic-root-plan.json`. Missing/ambiguous glosses fail explicitly;
+resolve exact internal IDs and use `--request` if needed. Do not rebuild semantic
+scores or import D1 simply to run the planner. Do not ask for repeated test logs.
 
-Once that works, record the bounded Phonology Engine v1 acceptance checkpoint,
-preserve the explicit supported/deferred list, and proceed to Step 13 semantic
-root planning. Start from the already integrated semantic pair/directional
-scores: produce a reviewable small root-family plan with stable concept/root
-identities, deliberate overrides, and evidence provenance before assigning forms.
-Do not start Grambank, UniMorph, or later engines at this point.
+After reviewing that plan, proceed to Step 14: assign generated phonological
+forms to planned roots and create a small reproducible lexicon. Preserve deliberate
+colexification, distinguish accidental homophony, and retain plan/form/evidence
+provenance. Derivation and compound realization need explicit morphology and must
+not be fabricated as concatenation without a declared rule. Website editing is
+not implemented by the Step 13 CLI.
+
+If the user supplies the Step 12C local generation/reproduction result, update
+the bounded Phonology v1 acceptance record accurately. Keep its support/deferred
+matrix visible. Do not reopen already passed Steps 4–12 or start later engines.
