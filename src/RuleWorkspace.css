@@ -1,0 +1,16 @@
+.workspaceNav { flex-wrap: wrap; }
+.ruleWorkspace .runLoader { margin-bottom: 24px; }
+.ruleWorkspace .runActions { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.ruleWorkspace .fileButton { position: relative; display: inline-flex; overflow: hidden; padding: 10px 16px; background: #14594e; border-radius: 8px; color: white; cursor: pointer; }
+.ruleWorkspace .fileButton input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+.ruleWorkspace .fileButton:focus-within { outline: 3px solid #319d8c; outline-offset: 3px; }
+.ruleWorkspace .lengthPair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ruleWorkspace .rulesEditor { font-family: ui-monospace, monospace; font-size: .8rem; }
+.ruleWorkspace .soundInventory { display: flex; flex-wrap: wrap; gap: 8px; }
+.ruleWorkspace .soundInventory span { display: grid; gap: 4px; min-width: 54px; padding: 10px; text-align: center; background: #eef5f3; border-radius: 8px; }
+.ruleWorkspace small { display: block; color: #526174; font-size: .75rem; font-weight: 400; }
+.ruleWorkspace .formList details { border-bottom: 1px solid #e5eaf0; padding-bottom: 14px; }
+.ruleWorkspace .formList summary { overflow-wrap: anywhere; }
+.ruleWorkspace .formList small { margin-top: 6px; }
+.ruleWorkspace code { overflow-wrap: anywhere; }
+.ruleWorkspace .status:empty { display: none; }

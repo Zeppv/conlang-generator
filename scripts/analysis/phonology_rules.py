@@ -6,6 +6,7 @@ import math
 
 
 RULES_VERSION = "1.0.0"
+ENGINE_VERSION = "1.1.0"
 STATUSES = {"unknown", "explicit_none", "configured", "deferred"}
 
 
@@ -138,7 +139,7 @@ def canonical_rules(value, specification):
             longs.add(long_id)
             pairs.append({"short_id": short_id, "long_id": long_id})
         normalized_length.update({
-            "strategy": "lexical", "probability": float(probability),
+            "strategy": "lexical", "probability": 0.0 if probability == 0 else float(probability),
             "pairs": sorted(pairs, key=lambda item: item["short_id"]),
         })
 
@@ -243,6 +244,28 @@ def canonical_rules(value, specification):
                 })
         harmonies[section_name] = normalized
 
+    for section_name in ("allophony", "vowel_harmony", "consonant_harmony"):
+        if len(value[section_name]["rules"] or []) > 64:
+            _fail(f"rules.{section_name}", "at most 64 rules are supported")
+        if (spec["extensions"][section_name]["status"] == "explicit_none" and
+                value[section_name]["status"] == "configured"):
+            _fail(f"rules.{section_name}", "contradicts specification explicit absence")
+    for section_name, spec_name in (("stress", "stress"), ("tone", "tone"), ("length", "length_contrast")):
+        setting = spec["prosody"][spec_name]["setting"]
+        status = value[section_name]["status"]
+        if status == "configured" and setting in {"none", "absent"}:
+            _fail(f"rules.{section_name}", "contradicts specification explicit absence")
+        if status == "explicit_none" and setting in {"present", "fixed", "variable"}:
+            _fail(f"rules.{section_name}", "contradicts specification explicit presence")
+    if (stress["status"] == "configured" and spec["prosody"]["stress"]["setting"] == "fixed" and
+            stress["rule"]["position"] != spec["prosody"]["stress"]["position"]):
+        _fail("rules.stress", "contradicts specification stress position")
+    structural = {spec["construction"]["boundaries"]["component_token"],
+                  *spec["construction"]["boundaries"]["special_markers"]["tokens"], "ˈ", "ˌ"}
+    for rule in normalized_allophony["rules"]:
+        if any(token in rule["surface_ipa"] for token in structural):
+            _fail("rules.allophony", "surface IPA must not contain structural or stress markers")
+
     return {
         "rules_version": RULES_VERSION, "name": value["name"],
         "stress": normalized_stress, "tone": normalized_tone,
@@ -253,7 +276,10 @@ def canonical_rules(value, specification):
 
 class PhonologyRuleSet:
     def __init__(self, specification, value):
-        self._value = canonical_rules(deepcopy(value), specification)
+        try:
+            self._value = canonical_rules(deepcopy(value), specification)
+        except (KeyError, TypeError, AttributeError) as error:
+            raise RuleError("rules: malformed rule declaration") from error
 
     def to_dict(self):
         return deepcopy(self._value)
@@ -273,7 +299,8 @@ def _context_matches(context, side, index, ids, boundary, classes, domain):
     absolute_edge = neighbor < 0 or neighbor >= len(ids)
     component_edge = absolute_edge or (not absolute_edge and ids[neighbor] == boundary)
     if context == "any":
-        return not absolute_edge
+        # A structural boundary is never an adjacent phoneme, in either domain.
+        return not component_edge
     if context == "word_edge":
         return absolute_edge
     if context == "component_edge":
@@ -337,9 +364,104 @@ def _trace_positions(form, boundary):
     return starts, nuclei
 
 
+def validate_phonological_output(spec, form, ids, selected):
+    """Construction constraints apply to post-length/harmony IDs, not allophones."""
+    boundary = spec["construction"]["boundaries"]["component_token"]
+    onsets = {tuple(row) for row in spec["construction"]["onsets"]}
+    codas = {tuple(row) for row in spec["construction"]["codas"]}
+    vowels = set(spec["classes"]["vowels"])
+    cursor = 0
+    for component_index, component in enumerate(form["components"]):
+        if component_index:
+            if ids[cursor] != boundary:
+                _fail("form", "component boundary changed")
+            cursor += 1
+        for syllable in component["syllables"]:
+            onset_end = cursor + len(syllable["onset"])
+            end = onset_end + 1 + len(syllable["coda"])
+            if (tuple(ids[cursor:onset_end]) not in onsets or
+                    tuple(ids[onset_end + 1:end]) not in codas):
+                _fail(f"form[{form['word_index']}]", "phonological cluster is not allowed")
+            if ids[onset_end] not in vowels or not set(ids[cursor:end]) <= selected:
+                _fail("form", "phonological output violates classes or selected inventory")
+            cursor = end
+    if cursor != len(ids):
+        _fail("form", "phonological output length changed")
+
+
+def validate_realization_input(spec, generation):
+    """Recheck saved traces; an imported valid flag is not a validation result."""
+    try:
+        _validate_realization_input(spec, generation)
+    except (KeyError, TypeError, IndexError, AttributeError) as error:
+        raise RuleError("generation: malformed saved generation") from error
+
+
+def _validate_realization_input(spec, generation):
+    phonemes = {row["id"]: row for row in spec["phonemes"]}
+    inventory = generation["inventory"]["phonemes"]
+    if not isinstance(inventory, list) or not 1 <= len(inventory) <= 256:
+        _fail("generation.inventory", "requires 1-256 phonemes")
+    selected = set()
+    for row in inventory:
+        if (row["id"] not in phonemes or row["id"] in selected or
+                row["ipa"] != phonemes[row["id"]]["ipa"]):
+            _fail("generation.inventory", "unknown, duplicate or mismatched phoneme")
+        selected.add(row["id"])
+    if (not isinstance(generation["request_fingerprint"], str) or
+            not 1 <= len(generation["request_fingerprint"]) <= 100):
+        _fail("generation.request_fingerprint", "must be a nonempty string up to 100 characters")
+    if generation["hard_rule_validation"]["valid"] is not True:
+        _fail("generation", "hard-rule validation must be valid before realization")
+    if not isinstance(generation["evidence"]["evaluation"], dict):
+        _fail("generation.evidence", "requires an evaluation object")
+    forms = generation["forms"]
+    if not isinstance(forms, list) or not 1 <= len(forms) <= 1000:
+        _fail("generation.forms", "requires 1-1000 forms")
+    templates = {row["id"]: row["shape"] for row in spec["construction"]["syllable_templates"]}
+    boundary = spec["construction"]["boundaries"]["component_token"]
+    total = 0
+    for index, form in enumerate(forms):
+        if type(form["word_index"]) is not int or form["word_index"] != index:
+            _fail("generation.forms", "word indexes must be consecutive from zero")
+        components = form["components"]
+        if (not isinstance(components, list) or not 1 <= len(components) <= 8 or
+                type(form["component_count"]) is not int or form["component_count"] != len(components)):
+            _fail("form", "invalid component count")
+        for ci, component in enumerate(components):
+            if type(component["component_index"]) is not int or component["component_index"] != ci:
+                _fail("form", "invalid component index")
+            syllables = component["syllables"]
+            if (not isinstance(syllables, list) or not 1 <= len(syllables) <= 16 or
+                    str(len(syllables)) not in spec["construction"]["syllable_count_weights"]):
+                _fail("form", "invalid syllable count")
+            rebuilt = []
+            for syllable in syllables:
+                if (not isinstance(syllable["onset"], list) or not isinstance(syllable["coda"], list) or
+                        len(syllable["onset"]) > 8 or len(syllable["coda"]) > 8):
+                    _fail("form", "invalid syllable clusters")
+                shape = "C" * len(syllable["onset"]) + "V" + "C" * len(syllable["coda"])
+                if shape != syllable["shape"] or templates.get(syllable["template_id"]) != shape:
+                    _fail("form", "template shape mismatch")
+                ids = [*syllable["onset"], syllable["nucleus"], *syllable["coda"]]
+                if ids != syllable["phoneme_ids"]:
+                    _fail("form", "syllable trace mismatch")
+                rebuilt.extend(ids)
+            if rebuilt != component["phoneme_ids"]:
+                _fail("form", "component trace mismatch")
+        _trace_positions(form, boundary)
+        validate_phonological_output(spec, form, form["phoneme_ids"], selected)
+        if form["ipa_tokens"] != [boundary if item == boundary else phonemes[item]["ipa"] for item in form["phoneme_ids"]]:
+            _fail("form", "IPA trace mismatch")
+        total += len(form["phoneme_ids"])
+        if total > 20000:
+            _fail("generation.forms", "realization limit is 20000 total tokens")
+
+
 def apply_rules(specification, rule_set, generation):
     spec = specification.to_dict()
     rules = rule_set.to_dict()
+    validate_realization_input(spec, generation)
     if generation.get("specification_fingerprint") != specification.fingerprint:
         _fail("generation", "specification fingerprint does not match")
     if not generation.get("hard_rule_validation", {}).get("valid"):
@@ -383,6 +505,8 @@ def apply_rules(specification, rule_set, generation):
             if rules[section_name]["status"] == "configured":
                 for rule in rules[section_name]["rules"]:
                     _apply_harmony(ids, rule, phonemes, boundary, selected, events)
+
+        validate_phonological_output(spec, form, ids, selected)
 
         surface = [
             item if item == boundary else phonemes[item]["ipa"]
@@ -469,7 +593,7 @@ def apply_rules(specification, rule_set, generation):
         ],
     }
     return {
-        "rule_engine_version": RULES_VERSION,
+        "rule_engine_version": ENGINE_VERSION,
         "specification_fingerprint": specification.fingerprint,
         "generation_request_fingerprint": generation["request_fingerprint"],
         "rule_set_fingerprint": rule_set.fingerprint,

@@ -1,5 +1,6 @@
 import { evaluateEvidence, InputError, proposalInput } from './phonology-evaluator.ts';
 import type { Row } from './phonology-evaluator.ts';
+import { phonologyRulesApi } from './phonology-rules-api.ts';
 
 async function hash(text: string) {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -61,6 +62,7 @@ async function boundedJson(request: Request) {
 
 export async function phonologyApi(request: Request, db: D1Database): Promise<Response> {
   const url = new URL(request.url);
+  if (url.pathname === '/api/phonology/realize') return phonologyRulesApi(request);
   const isStatus = url.pathname === '/api/phonology/status';
   const isEvaluation = url.pathname === '/api/phonology/evaluate';
   if (!isStatus && !isEvaluation) return Response.json({error: 'API route not found.'}, {status: 404});

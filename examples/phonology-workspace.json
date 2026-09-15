@@ -1,0 +1,463 @@
+{
+  "bundle_version": 1,
+  "rule_engine_version": "1.1.0",
+  "specification_json": "{\"classes\":{\"consonants\":[\"k\",\"m\",\"n\",\"p\",\"s\",\"t\"],\"tones\":[],\"vowels\":[\"a\",\"i\",\"u\"]},\"construction\":{\"boundaries\":{\"component_token\":\"+\",\"cross_component_sequences\":\"blocked\",\"special_markers\":{\"policy\":\"reject\",\"tokens\":[\"∼\"]},\"unknown_phoneme_policy\":\"reject\",\"word_boundary_sequences\":\"blocked\"},\"codas\":[[],[\"k\"],[\"m\"],[\"n\"],[\"p\"],[\"s\"],[\"t\"]],\"onsets\":[[],[\"k\"],[\"m\"],[\"n\"],[\"p\"],[\"s\"],[\"t\"],[\"s\",\"t\"]],\"syllable_count_weights\":{\"1\":0.25,\"2\":0.5,\"3\":0.25},\"syllable_templates\":[{\"id\":\"ccv\",\"shape\":\"CCV\",\"weight\":0.1},{\"id\":\"cv\",\"shape\":\"CV\",\"weight\":0.5},{\"id\":\"cvc\",\"shape\":\"CVC\",\"weight\":0.3},{\"id\":\"v\",\"shape\":\"V\",\"weight\":0.1}]},\"evidence\":{\"notes\":[\"Construction choices are not claims about cross-linguistic frequency.\"],\"references\":[],\"status\":\"not_attached\"},\"extensions\":{\"allophony\":{\"rules\":[],\"status\":\"unknown\"},\"consonant_harmony\":{\"rules\":[],\"status\":\"unknown\"},\"vowel_harmony\":{\"rules\":[],\"status\":\"unknown\"}},\"model_version\":\"phonology-v1-step10\",\"name\":\"Step 10 demonstration sound system\",\"phonemes\":[{\"class\":\"vowel\",\"features\":{\"backness\":\"front\",\"height\":\"open\"},\"id\":\"a\",\"ipa\":\"a\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}},{\"class\":\"vowel\",\"features\":{\"backness\":\"front\",\"height\":\"close\"},\"id\":\"i\",\"ipa\":\"i\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}},{\"class\":\"consonant\",\"features\":{\"manner\":\"stop\",\"place\":\"velar\",\"voicing\":\"voiceless\"},\"id\":\"k\",\"ipa\":\"k\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}},{\"class\":\"consonant\",\"features\":{\"manner\":\"nasal\",\"place\":\"bilabial\",\"voicing\":\"voiced\"},\"id\":\"m\",\"ipa\":\"m\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}},{\"class\":\"consonant\",\"features\":{\"manner\":\"nasal\",\"place\":\"alveolar\",\"voicing\":\"voiced\"},\"id\":\"n\",\"ipa\":\"n\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}},{\"class\":\"consonant\",\"features\":{\"manner\":\"stop\",\"place\":\"bilabial\",\"voicing\":\"voiceless\"},\"id\":\"p\",\"ipa\":\"p\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}},{\"class\":\"consonant\",\"features\":{\"manner\":\"fricative\",\"place\":\"alveolar\",\"voicing\":\"voiceless\"},\"id\":\"s\",\"ipa\":\"s\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}},{\"class\":\"consonant\",\"features\":{\"manner\":\"stop\",\"place\":\"alveolar\",\"voicing\":\"voiceless\"},\"id\":\"t\",\"ipa\":\"t\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}},{\"class\":\"vowel\",\"features\":{\"backness\":\"back\",\"height\":\"close\"},\"id\":\"u\",\"ipa\":\"u\",\"mapping\":{\"candidates\":[],\"source\":null,\"source_id\":null,\"status\":\"user_defined\"}}],\"prosody\":{\"length_contrast\":{\"declaration\":\"unknown\",\"setting\":\"unknown\"},\"stress\":{\"declaration\":\"unknown\",\"position\":null,\"setting\":\"unknown\"},\"tone\":{\"declaration\":\"unknown\",\"setting\":\"unknown\"}},\"provenance\":{\"defaults\":[{\"field\":\"construction.boundaries\",\"kind\":\"engineering_default\",\"note\":\"Boundaries block cross-boundary sequences; unknown and special tokens are rejected.\",\"source\":\"phonology-v1-step10\"},{\"field\":\"construction.syllable_templates\",\"kind\":\"user_declared\",\"note\":\"Illustrative templates and weights for the Step 10 demonstration.\",\"source\":\"examples/sound-system-specification.json\"},{\"field\":\"phonemes\",\"kind\":\"user_declared\",\"note\":\"Illustrative inventory; source mappings have not been asserted.\",\"source\":\"examples/sound-system-specification.json\"}],\"notes\":[\"Descriptive evidence may be attached later without changing hard construction rules.\"]},\"seed\":\"step10-demo-seed\",\"specification_version\":\"1.0.0\"}",
+  "rules": {
+    "rules_version": "1.0.0",
+    "name": "Step 12 bounded demonstration rules",
+    "stress": {
+      "status": "configured",
+      "rule": {
+        "type": "fixed",
+        "position": "initial",
+        "marker": "ˈ"
+      }
+    },
+    "tone": {
+      "status": "unknown",
+      "system": null,
+      "realization": null,
+      "tone_ids": []
+    },
+    "length": {
+      "status": "unknown",
+      "strategy": null,
+      "probability": null,
+      "pairs": []
+    },
+    "allophony": {
+      "status": "configured",
+      "rules": [
+        {
+          "id": "intervocalic_t_tap",
+          "underlying_id": "t",
+          "surface_ipa": "ɾ",
+          "left": "vowel",
+          "right": "vowel",
+          "domain": "component"
+        }
+      ]
+    },
+    "vowel_harmony": {
+      "status": "unknown",
+      "rules": []
+    },
+    "consonant_harmony": {
+      "status": "unknown",
+      "rules": []
+    },
+    "notes": [
+      "Fixed stress is user-declared, not inferred from the Step 7 annotations.",
+      "The allophony rule is inactive when /t/ is absent or outside its stated context."
+    ]
+  },
+  "generation": {
+    "specification_fingerprint": "8b7801cc8f7e769d12b8e1e113584c8be843a2af33e6deb841c9fe5dfd6debb1",
+    "request_fingerprint": "illustrative-workspace-example-v1",
+    "inventory": {
+      "phonemes": [
+        {
+          "id": "a",
+          "ipa": "a",
+          "class": "vowel",
+          "features": {
+            "backness": "front",
+            "height": "open"
+          },
+          "mapping": {
+            "status": "user_defined",
+            "source": null,
+            "source_id": null,
+            "candidates": []
+          }
+        },
+        {
+          "id": "i",
+          "ipa": "i",
+          "class": "vowel",
+          "features": {
+            "backness": "front",
+            "height": "close"
+          },
+          "mapping": {
+            "status": "user_defined",
+            "source": null,
+            "source_id": null,
+            "candidates": []
+          }
+        },
+        {
+          "id": "p",
+          "ipa": "p",
+          "class": "consonant",
+          "features": {
+            "manner": "stop",
+            "place": "bilabial",
+            "voicing": "voiceless"
+          },
+          "mapping": {
+            "status": "user_defined",
+            "source": null,
+            "source_id": null,
+            "candidates": []
+          }
+        },
+        {
+          "id": "t",
+          "ipa": "t",
+          "class": "consonant",
+          "features": {
+            "manner": "stop",
+            "place": "alveolar",
+            "voicing": "voiceless"
+          },
+          "mapping": {
+            "status": "user_defined",
+            "source": null,
+            "source_id": null,
+            "candidates": []
+          }
+        },
+        {
+          "id": "u",
+          "ipa": "u",
+          "class": "vowel",
+          "features": {
+            "backness": "back",
+            "height": "close"
+          },
+          "mapping": {
+            "status": "user_defined",
+            "source": null,
+            "source_id": null,
+            "candidates": []
+          }
+        }
+      ]
+    },
+    "forms": [
+      {
+        "word_index": 0,
+        "component_count": 1,
+        "components": [
+          {
+            "component_index": 0,
+            "syllables": [
+              {
+                "template_id": "v",
+                "shape": "V",
+                "onset": [],
+                "nucleus": "a",
+                "coda": [],
+                "phoneme_ids": [
+                  "a"
+                ]
+              },
+              {
+                "template_id": "cvc",
+                "shape": "CVC",
+                "onset": [
+                  "t"
+                ],
+                "nucleus": "a",
+                "coda": [
+                  "p"
+                ],
+                "phoneme_ids": [
+                  "t",
+                  "a",
+                  "p"
+                ]
+              }
+            ],
+            "phoneme_ids": [
+              "a",
+              "t",
+              "a",
+              "p"
+            ]
+          }
+        ],
+        "phoneme_ids": [
+          "a",
+          "t",
+          "a",
+          "p"
+        ],
+        "ipa_tokens": [
+          "a",
+          "t",
+          "a",
+          "p"
+        ]
+      },
+      {
+        "word_index": 1,
+        "component_count": 1,
+        "components": [
+          {
+            "component_index": 0,
+            "syllables": [
+              {
+                "template_id": "cv",
+                "shape": "CV",
+                "onset": [
+                  "p"
+                ],
+                "nucleus": "i",
+                "coda": [],
+                "phoneme_ids": [
+                  "p",
+                  "i"
+                ]
+              },
+              {
+                "template_id": "cv",
+                "shape": "CV",
+                "onset": [
+                  "t"
+                ],
+                "nucleus": "u",
+                "coda": [],
+                "phoneme_ids": [
+                  "t",
+                  "u"
+                ]
+              }
+            ],
+            "phoneme_ids": [
+              "p",
+              "i",
+              "t",
+              "u"
+            ]
+          }
+        ],
+        "phoneme_ids": [
+          "p",
+          "i",
+          "t",
+          "u"
+        ],
+        "ipa_tokens": [
+          "p",
+          "i",
+          "t",
+          "u"
+        ]
+      },
+      {
+        "word_index": 2,
+        "component_count": 2,
+        "components": [
+          {
+            "component_index": 0,
+            "syllables": [
+              {
+                "template_id": "v",
+                "shape": "V",
+                "onset": [],
+                "nucleus": "i",
+                "coda": [],
+                "phoneme_ids": [
+                  "i"
+                ]
+              }
+            ],
+            "phoneme_ids": [
+              "i"
+            ]
+          },
+          {
+            "component_index": 1,
+            "syllables": [
+              {
+                "template_id": "cv",
+                "shape": "CV",
+                "onset": [
+                  "t"
+                ],
+                "nucleus": "a",
+                "coda": [],
+                "phoneme_ids": [
+                  "t",
+                  "a"
+                ]
+              }
+            ],
+            "phoneme_ids": [
+              "t",
+              "a"
+            ]
+          }
+        ],
+        "phoneme_ids": [
+          "i",
+          "+",
+          "t",
+          "a"
+        ],
+        "ipa_tokens": [
+          "i",
+          "+",
+          "t",
+          "a"
+        ]
+      }
+    ],
+    "hard_rule_validation": {
+      "valid": true
+    },
+    "evidence": {
+      "evaluation": {
+        "status": "illustrative_example",
+        "overall_naturalism_score": null,
+        "note": "These three forms illustrate the rule workspace. No reference evaluation is attached. Import your saved Step 11 run to inspect its evidence."
+      }
+    }
+  },
+  "report": {
+    "rule_engine_version": "1.1.0",
+    "specification_fingerprint": "8b7801cc8f7e769d12b8e1e113584c8be843a2af33e6deb841c9fe5dfd6debb1",
+    "generation_request_fingerprint": "illustrative-workspace-example-v1",
+    "rule_set_fingerprint": "5dd3a337540db491782561c4715559880adf306f6fac63fb58901a0fcf15295c",
+    "seed": "step10-demo-seed",
+    "support": {
+      "stress": "fixed_initial_or_final",
+      "tone": "unknown",
+      "length": "unknown",
+      "allophony": "bounded_context_rules",
+      "vowel_harmony": "unknown",
+      "consonant_harmony": "unknown",
+      "deferred": [
+        "automatic stress-system induction",
+        "metrical stress",
+        "tone sandhi",
+        "non-lexical tone assignment",
+        "gradient/overlapping allophony",
+        "bidirectional harmony",
+        "opaque interactions",
+        "automatic rule induction"
+      ]
+    },
+    "forms": [
+      {
+        "word_index": 0,
+        "underlying_phoneme_ids": [
+          "a",
+          "t",
+          "a",
+          "p"
+        ],
+        "phonological_phoneme_ids": [
+          "a",
+          "t",
+          "a",
+          "p"
+        ],
+        "surface_tokens": [
+          "ˈ",
+          "a",
+          "ɾ",
+          "a",
+          "p"
+        ],
+        "surface_form": "ˈaɾap",
+        "derivation": [
+          {
+            "stage": "allophony",
+            "rule_id": "intervocalic_t_tap",
+            "position": 1,
+            "underlying_id": "t",
+            "from_ipa": "t",
+            "to_ipa": "ɾ"
+          },
+          {
+            "stage": "stress",
+            "position": 0,
+            "rule": "initial",
+            "marker": "ˈ"
+          }
+        ]
+      },
+      {
+        "word_index": 1,
+        "underlying_phoneme_ids": [
+          "p",
+          "i",
+          "t",
+          "u"
+        ],
+        "phonological_phoneme_ids": [
+          "p",
+          "i",
+          "t",
+          "u"
+        ],
+        "surface_tokens": [
+          "ˈ",
+          "p",
+          "i",
+          "ɾ",
+          "u"
+        ],
+        "surface_form": "ˈpiɾu",
+        "derivation": [
+          {
+            "stage": "allophony",
+            "rule_id": "intervocalic_t_tap",
+            "position": 2,
+            "underlying_id": "t",
+            "from_ipa": "t",
+            "to_ipa": "ɾ"
+          },
+          {
+            "stage": "stress",
+            "position": 0,
+            "rule": "initial",
+            "marker": "ˈ"
+          }
+        ]
+      },
+      {
+        "word_index": 2,
+        "underlying_phoneme_ids": [
+          "i",
+          "+",
+          "t",
+          "a"
+        ],
+        "phonological_phoneme_ids": [
+          "i",
+          "+",
+          "t",
+          "a"
+        ],
+        "surface_tokens": [
+          "ˈ",
+          "i",
+          "+",
+          "t",
+          "a"
+        ],
+        "surface_form": "ˈita",
+        "derivation": [
+          {
+            "stage": "stress",
+            "position": 0,
+            "rule": "initial",
+            "marker": "ˈ"
+          }
+        ]
+      }
+    ],
+    "evidence": {
+      "generation_evaluation": {
+        "status": "illustrative_example",
+        "overall_naturalism_score": null,
+        "note": "These three forms illustrate the rule workspace. No reference evaluation is attached. Import your saved Step 11 run to inspect its evidence."
+      },
+      "note": "Rules are user declarations. Reference annotations remain descriptive evidence and did not select or validate these rule types."
+    }
+  }
+}

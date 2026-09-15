@@ -37,5 +37,6 @@ bidirectional harmony, opaque interactions, and automatic empirical validation
 of a user rule. Reference evaluator output is retained as evidence but cannot
 select a construction rule.
 
-Website/API integration is the next Step 12 checkpoint. The offline core must
-pass first so the browser and Python implementations can share a fixed contract.
+Step 12B adds the Rule Workspace and matching browser/Worker engine. See
+`PHONOLOGY_WORKSPACE.md` for saved-run export, replay, engine 1.1.0 validation
+changes, and the remaining v1 acceptance work.

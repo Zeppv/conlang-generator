@@ -67,13 +67,13 @@ metrics and coverage for proposed inventories, sample words, syllable templates
 and prosody; it does not manufacture a universal naturalism percentage.
 
 Step 9 implements the Phonology website tab, a matching Worker evaluator, and a
-compact local D1 serving sync. User installation is pending. Do not rerun Steps
-5–8 or the full reference export. Use the Step 9 instructions below.
+compact local D1 serving sync. The user supplied installation/output and pushed
+the checkpoint. Do not rerun Steps 5–8 or the full reference export.
 
 **The detailed current roadmap and completion criteria are in `docs/ROADMAP.md`.**
-Evidence evaluation is implemented; generation of sound systems and forms is
-still outstanding. Prosody marks are not complete stress rules, allophony or
-harmony models. Those capabilities remain explicit roadmap work.
+Steps 10 and 11 are user-validated. Step 12A's rule demo and seven tests passed.
+Step 12B adds a saved-run rule workspace; its focused automated checks pass,
+while browser confirmation and the full v1 acceptance gate remain open.
 
 Phonology Engine v1 order:
 
@@ -95,11 +95,13 @@ stress and related phonological systems — STEP 7 VALIDATED ON USER DATABASE
 ↓
 phonology evidence evaluation — USER DEMONSTRATION COMPLETE
 ↓
-website evaluator — STEP 9 IMPLEMENTED, USER INSTALL PENDING
+website evaluator — STEP 9 USER INSTALLATION/OUTPUT SUPPLIED
 ↓
-executable sound-system specification and generation — PLANNED
+executable sound-system specification and generation — STEPS 10–11 USER VALIDATED
 ↓
-explicit prosody/allophony/harmony support and PHONOLOGY V1 ACCEPTANCE
+explicit rules — STEP 12A USER VALIDATED; STEP 12B SAVED-RUN WORKSPACE IMPLEMENTED
+↓
+PHONOLOGY V1 ACCEPTANCE — OPEN
 ```
 
 Do not move on to Grambank, UniMorph, Universal Dependencies, WOLD, Wiktionary, grammar, or later roadmap stages until Phonology Engine v1 is clean and complete.
@@ -1584,7 +1586,7 @@ explicit prosody evidence — STEP 7 USER BUILD PASSED
 ↓
 offline evaluator — STEP 8 USER DEMONSTRATION COMPLETE
 ↓
-website evaluator — STEP 9 IMPLEMENTED, USER INSTALL PENDING
+website evaluator — STEP 9 USER INSTALLATION/OUTPUT SUPPLIED
 ↓
 sound-system specification, generation and explicit rule support
 ↓
@@ -2436,25 +2438,46 @@ seven focused rule tests successfully in 0.044 seconds. The rule-set fingerprint
 was `5dd3a337540db491782561c4715559880adf306f6fac63fb58901a0fcf15295c`.
 SQLite and D1 were not modified. Do not ask for the same demonstration again.
 
+## Step 12B — saved-run rule workspace implemented, 2026-09-15
+
+Workspace execution recovered. The implementation adds a shared TypeScript rule
+engine, POST `/api/phonology/realize`, Rule Workspace tab, portable bundle export
+and Python replay. It reuses saved Step 11 forms and evidence without SQLite
+builds or D1 imports. No production deployment occurred.
+
+The `any` boundary finding is fixed. Final post-length/harmony IDs must satisfy
+selected-inventory membership and declared onset/coda constraints; surface
+allophones stay separate. Saved traces are revalidated on import. Explicit
+specification/rule contradictions fail. Engine version is 1.1.0; rule schema
+remains 1.0.0. See `docs/PHONOLOGY_WORKSPACE.md` for the complete contract.
+
+Verification: 33 focused Step 10–12 tests passed, including nine new workspace
+tests and 28 complete Python/TypeScript parity cases with saved-report replay.
+The Step 11 in-memory fixture pipeline preserves its evaluation through Python,
+TypeScript, and the API. Build and lint passed. Browser visual/interaction checks
+remain unverified: local preview navigation was blocked by the browser service.
+Native Cloudflare dev startup also failed on environment network-interface
+discovery; API verification used Node Web Request/Response with no D1 access.
+Do not describe those as a new native Worker/D1/browser acceptance pass.
+
 # NEXT TASK
 
-Continue Step 12B: Python/TypeScript rule parity, website controls and
-transformation output, saved-run reproduction, and the final Phonology Engine
-v1 supported/deferred acceptance gate. Full Step 12 is not complete.
+Have the user try the delivered saved-run workspace once:
 
-Before porting, resolve two code-review findings with focused regression cases:
+```bat
+git pull --ff-only origin main
+python scripts\analysis\apply_phonology_rules.py --bundle-output data\compiled\phonology-workspace.json
+npm run dev
+```
 
-- `_context_matches` returns early for `any`, allowing a component boundary
-  token to satisfy that context even for a component-domain rule.
-- Harmony replacements check selected-inventory membership, but transformed
-  clusters are not checked against the declared onset/coda constraints.
-  Decide and document the hard-rule policy for phonological outputs.
+Open **Rule Workspace**, load `data/compiled/phonology-workspace.json`, and apply
+the rules. Export uses the already-generated forms. No repeated database build,
+D1 sync, full import, or user test-log paste is required.
 
-Development execution became unavailable during dependency installation:
-`exec-server transport disconnected`; automatic recovery timed out. No rule
-fix, TypeScript port or website integration was implemented or tested in that
-session. This checkpoint changes documentation only.
-
-Check execution availability before resuming. Reuse the existing source database,
-compact D1 snapshots and saved Step 11 output. Run focused fixture-based tests
-and application checks; do not rebuild SQLite or repeat a full D1 import.
+Then finish Step 12's fresh-generation application integration and acceptance
+checks through the existing compact evidence path. The rule workspace currently
+loads existing forms; it does not select a new inventory or generate new forms
+in the browser. Preserve the supported/deferred matrix and complete the v1 gate
+before moving to Step 13 semantic root planning. Continue running focused checks
+in the workspace where possible instead of handing routine verification back
+to the user.
