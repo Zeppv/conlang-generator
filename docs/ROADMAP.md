@@ -25,7 +25,7 @@ completion percentage while the later research and modeling scope is open.
 | Step 12A: explicit rule core | User demonstration and seven focused tests passed | Bounded stress, tone, length, allophony and separate harmony rule contracts with derivation traces |
 | Step 12B: saved-run rule workspace | User load/apply output confirms browser/server agreement | Load forms, edit rules, inspect traces/evidence, export/replay a full run |
 | Step 12C: website generation | Implemented; generation/snapshot parity and build passed, user functional check pending | New inventories/forms from existing compact evidence; saved-snapshot regeneration |
-| Step 13: semantic root planning | Offline implementation and 15 focused tests passed; full-data demonstration pending | Reviewable root families, explicit overrides/gaps/compounds, frozen evidence and portable replay |
+| Step 13: semantic root planning | Offline implementation and 17 focused tests passed; full-data demonstration pending | Reviewable root families, explicit overrides/gaps/compounds, frozen evidence and portable replay |
 | Step 14 onward | Planned | Root forms, initial lexicon, and later engines listed below |
 
 The user believes Step 12C is complete and requested continuation on 2026-09-15.
@@ -163,11 +163,16 @@ Keep the v1 supported/deferred list explicit at sign-off.
 
 Implemented in `scripts/analysis/semantic_root_planner.py` and
 `plan_semantic_roots.py`; usage and support boundaries are documented in
-`docs/SEMANTIC_ROOT_PLANNER.md`. Fifteen focused tests pass on synthetic evidence
+`docs/SEMANTIC_ROOT_PLANNER.md`. Seventeen focused tests pass on synthetic evidence
 loaded through the real repository schemas, including read-only CLI generation,
 saved overrides, independent database-free replay, cycles, stable IDs, provenance,
 unknown evidence, and rejection of corrupt reports. Demonstration on the user's
 full database remains the local checkpoint.
+
+The initial demo failed on an assumed bare `DAY` gloss. It now resolves seven
+explicit Concepticon IDs, including DAY (NOT NIGHT) and RAIN (PRECIPITATION),
+to internal concept IDs. Tests cover those real labels, alternate senses,
+renamed/duplicate glosses, and missing identities. No database repair is needed.
 
 Automatic proposals use direct colexification, undirected derivation, and forward
 directional derivation support; all scores remain engineering weights. Automatic

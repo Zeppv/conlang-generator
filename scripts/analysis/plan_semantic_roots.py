@@ -10,6 +10,19 @@ sys.path.insert(0, str(ROOT / "scripts" / "analysis"))
 from semantic_root_planner import VERSION, PlanningError, build_plan, plan, replay, review_text
 
 
+# Explicit senses from concepticon/concepticon-data, concepticondata/concepticon.tsv.
+# These are external identifiers, NOT the application's internal concept IDs.
+DEMO_CONCEPTS = (
+    ("1313", "MOON"),
+    ("1370", "MONTH"),
+    ("1343", "SUN"),
+    ("1225", "DAY (NOT NIGHT)"),
+    ("948", "WATER"),
+    ("658", "RAIN (PRECIPITATION)"),
+    ("221", "FIRE"),
+)
+
+
 def read_json(path):
     if path.stat().st_size > 16 * 1024 * 1024:
         raise PlanningError("JSON input exceeds 16 MiB")
@@ -30,10 +43,13 @@ def read_json(path):
 
 def demo_request(connection):
     ids = []
-    for gloss in ("MOON", "MONTH", "SUN", "DAY", "WATER", "RAIN", "FIRE"):
-        rows = connection.execute("SELECT id FROM concept WHERE gloss = ? COLLATE NOCASE", (gloss,)).fetchall()
+    for external_id, gloss in DEMO_CONCEPTS:
+        rows = connection.execute(
+            "SELECT id FROM concept WHERE concepticon_id = ?", (external_id,)).fetchall()
         if len(rows) != 1:
-            raise PlanningError(f"demo gloss {gloss!r} has {len(rows)} matches; use an explicit --request with concept_ids")
+            raise PlanningError(
+                f"demo concept {gloss!r} (Concepticon {external_id}) has {len(rows)} matches; "
+                "use an explicit --request with internal concept_ids")
         ids.append(rows[0][0])
     return {"version": VERSION, "project_id": "first-language", "seed": "root-plan-demo",
             "concept_ids": ids, "minimum_support": 0.55, "overrides": []}
@@ -41,7 +57,7 @@ def demo_request(connection):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--demo", action="store_true", help="Resolve seven exact glosses in your existing database")
+    parser.add_argument("--demo", action="store_true", help="Resolve seven explicit Concepticon IDs in your existing database")
     parser.add_argument("--request", type=Path, help="Versioned request with explicit internal concept IDs")
     parser.add_argument("--from-plan", type=Path, help="Replay saved evidence; add --request to revise choices")
     parser.add_argument("--database", type=Path, default=ROOT / "data/compiled/reference.sqlite")

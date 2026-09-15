@@ -17,10 +17,25 @@ In the project folder:
 python scripts\analysis\plan_semantic_roots.py --demo
 ```
 
-The demonstration resolves MOON, MONTH, SUN, DAY, WATER, RAIN, and FIRE by exact
-case-insensitive gloss, then saves their **internal concept IDs** in the request.
-It fails clearly on missing or ambiguous glosses. It never silently chooses a
-match. These are demonstration concepts, not a required universal vocabulary.
+The demonstration resolves these explicit Concepticon identities, then saves
+their corresponding **internal concept IDs** in the request:
+
+| Concepticon ID | Selected sense |
+| --- | --- |
+| 1313 | MOON |
+| 1370 | MONTH |
+| 1343 | SUN |
+| 1225 | DAY (NOT NIGHT) |
+| 948 | WATER |
+| 658 | RAIN (PRECIPITATION) |
+| 221 | FIRE |
+
+These IDs and senses follow the [Concepticon concept table](https://github.com/concepticon/concepticon-data/blob/master/concepticondata/concepticon.tsv).
+The demo deliberately uses daylight and rain as a substance, not the 24-hour
+period or the act of raining. It does not look up bare `DAY` / `RAIN`, search
+partial glosses, or confuse external IDs with local IDs. Relabeling a concept
+does not change the selected identity. Missing identities fail explicitly;
+these are demonstration concepts, not a required universal vocabulary.
 
 The CLI prints the proposed relationships and support weights, and saves
 `data/compiled/semantic-root-plan.json`. Your actual database determines the
@@ -161,11 +176,13 @@ Run the focused suite:
 python -m unittest discover -s tests -p "test_semantic_root_planner.py" -v
 ```
 
-The 15 tests cover the real repository schemas with explicitly synthetic data:
+The 17 tests cover the real repository schemas with explicitly synthetic evidence
+and source-aligned Concepticon identities/labels:
 lexical distinctions, directionality, conservative colexification, unknown
 evidence/provenance, stable identities, deterministic replay after database
 changes, preserved overrides, compound ordering, cycles, corrupt reports,
-strict input validation, ambiguous glosses, and CLI generation/replay/revision.
+strict input validation, identity resolution despite changed/duplicate glosses,
+distinct day/rain senses, missing external IDs, and CLI generation/replay/revision.
 A SQL authorizer rejects all operations except SELECT/READ. The CLI test also
 compares database bytes before and after generation, then deletes its temporary
 database and verifies replay/revision still work. No user database was rebuilt

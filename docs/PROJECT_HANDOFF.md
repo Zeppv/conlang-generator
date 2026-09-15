@@ -44,7 +44,7 @@ than being asserted as a pass. Follow the user's direction to continue; do not
 repeat old rebuilds or make that missing result a blocker for Step 13 work.
 
 Step 13 now provides an offline semantic root planner, portable evidence and
-override replay, a CLI, documentation, and 15 passing focused tests. It reads the
+override replay, a CLI, documentation, and 17 passing focused tests. It reads the
 existing semantic data. No forms, schema migrations, D1 writes, or website changes
 are part of this checkpoint. See `docs/SEMANTIC_ROOT_PLANNER.md` and NEXT TASK.
 
@@ -2551,6 +2551,23 @@ unchanged and replay/revision still work after deleting the temporary database.
 No user's full reference database exists in this checkout. No source rebuild,
 serving sync, D1 import, website deployment, or new dependency was needed.
 
+## Step 13 demo identity fix — 2026-09-15
+
+The user's first full-data attempt failed because the demo assumed an exact
+`DAY` gloss. Concepticon distinguishes DAY (NOT NIGHT), ID 1225, and DAY (24
+HOURS), ID 1260; bare `RAIN` would have failed next. The demo now selects seven
+explicit external Concepticon IDs and maps them to the existing internal IDs.
+The intended senses are daylight (1225) and rain as precipitation (658), not
+the 24-hour period or the act of raining. The other identities are MOON 1313,
+MONTH 1370, SUN 1343, WATER 948, and FIRE 221, verified against Concepticon's
+own concept table. No source rows or scores are changed.
+
+The initial synthetic fixture used simplified DAY/RAIN labels and missed this
+integration problem. Fixtures now use the source labels/identities with distinct
+internal IDs. All 17 tests pass, including CLI generation and regression checks
+for alternate senses, renamed/duplicate glosses, and missing external identities.
+The user's complete demonstration is still pending the corrected run.
+
 # NEXT TASK
 
 Run the delivered Step 13 demonstration against the user's existing data. While
@@ -2565,9 +2582,9 @@ python scripts\analysis\plan_semantic_roots.py --demo
 After PR #1 is merged, the normal `main` / `git pull --ff-only origin main`
 workflow applies. Preserve any user-local edits when switching branches.
 
-This resolves seven exact demonstration glosses and writes
-`data/compiled/semantic-root-plan.json`. Missing/ambiguous glosses fail explicitly;
-resolve exact internal IDs and use `--request` if needed. Do not rebuild semantic
+This resolves seven explicit Concepticon identities to internal IDs and writes
+`data/compiled/semantic-root-plan.json`. Missing external identities fail explicitly;
+use a request with deliberate internal IDs if needed. Do not rebuild semantic
 scores or import D1 simply to run the planner. Do not ask for repeated test logs.
 
 After reviewing that plan, proceed to Step 14: assign generated phonological

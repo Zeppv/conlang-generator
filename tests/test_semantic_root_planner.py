@@ -19,9 +19,13 @@ def fixture(path=":memory:"):
         db.executescript((ROOT / "database/schema" / schema).read_text())
     for name in ("concepticon", "clics", "datsemshift", "wordnet"):
         db.execute("INSERT INTO reference_source VALUES (?, ?, 'fixture-only', 'test', 'fixture')", (name, name))
-    for i, gloss in enumerate(("MOON", "MONTH", "SUN", "DAY", "WATER", "RAIN", "FIRE"), 1):
+    # Source-aligned identities/labels; internal IDs deliberately differ from Concepticon IDs.
+    for i, (external_id, gloss) in enumerate((
+            ("1313", "MOON"), ("1370", "MONTH"), ("1343", "SUN"),
+            ("1225", "DAY (NOT NIGHT)"), ("948", "WATER"),
+            ("658", "RAIN (PRECIPITATION)"), ("221", "FIRE")), 1):
         db.execute("INSERT INTO concept (id, concepticon_id, gloss, source_id) VALUES (?, ?, ?, 'concepticon')",
-                   (i, f"fixture-{i}", gloss))
+                   (i, external_id, gloss))
     for a, b, colex, derivation, lexical in [(1, 2, .9, .1, .9), (3, 4, .1, .8, .8), (1, 3, 0, 0, 1), (2, 7, .95, 0, .95)]:
         db.execute("INSERT INTO semantic_pair_score VALUES (?, ?, .9, ?, ?, ?, 0, .9, 'clics,wordnet')",
                    (a, b, lexical, colex, derivation))
@@ -177,10 +181,28 @@ class RootPlannerTests(unittest.TestCase):
         result = plan(self.db, request())
         self.assertEqual(len(result["entries"]), 7)
 
-    def test_demo_never_guesses_ambiguous_glosses(self):
+    def test_demo_uses_external_identity_despite_gloss_changes_or_duplicates(self):
         self.assertEqual(demo_request(self.db)["concept_ids"], list(range(1, 8)))
         self.db.execute("INSERT INTO concept (id, gloss, source_id) VALUES (8, 'MOON', 'concepticon')")
-        with self.assertRaisesRegex(PlanningError, "2 matches"):
+        self.db.execute("UPDATE concept SET gloss = 'RENAMED DAY' WHERE concepticon_id = '1225'")
+        self.assertEqual(demo_request(self.db)["concept_ids"], list(range(1, 8)))
+
+    def test_demo_distinguishes_day_and_rain_senses(self):
+        for i, external_id, gloss in ((8, "1260", "DAY (24 HOURS)"), (9, "1253", "RAIN (RAINING)"),
+                                      (10, "2140", "DAY OR SUN"), (11, "2108", "RAINING OR RAIN")):
+            self.db.execute("INSERT INTO concept (id, concepticon_id, gloss, source_id) VALUES (?, ?, ?, 'concepticon')",
+                            (i, external_id, gloss))
+        ids = demo_request(self.db)["concept_ids"]
+        self.assertEqual(ids, list(range(1, 8)))
+        result = plan(self.db, demo_request(self.db))
+        selected = {row["concepticon_id"] for row in result["evidence_snapshot"]["concepts"]}
+        self.assertIn("1225", selected)
+        self.assertIn("658", selected)
+        self.assertTrue(selected.isdisjoint({"1260", "1253", "2140", "2108"}))
+
+    def test_demo_missing_identity_never_falls_back_to_a_gloss(self):
+        self.db.execute("UPDATE concept SET concepticon_id = NULL WHERE concepticon_id = '1225'")
+        with self.assertRaisesRegex(PlanningError, r"Concepticon 1225.*0 matches"):
             demo_request(self.db)
 
     def test_cli_generate_replay_and_revise_without_database(self):
