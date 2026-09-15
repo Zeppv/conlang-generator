@@ -1,6 +1,6 @@
 # Conlang Generator — roadmap and completion criteria
 
-Updated 2026-09-15, after user confirmation of Step 12B and implementation of Step 12C website generation.
+Updated 2026-09-15, after Step 13 semantic root planner implementation.
 
 The goal is a generator in which vocabulary comes from a coherent language
 system and its history. A working database and an evidence evaluator are the
@@ -25,7 +25,13 @@ completion percentage while the later research and modeling scope is open.
 | Step 12A: explicit rule core | User demonstration and seven focused tests passed | Bounded stress, tone, length, allophony and separate harmony rule contracts with derivation traces |
 | Step 12B: saved-run rule workspace | User load/apply output confirms browser/server agreement | Load forms, edit rules, inspect traces/evidence, export/replay a full run |
 | Step 12C: website generation | Implemented; generation/snapshot parity and build passed, user functional check pending | New inventories/forms from existing compact evidence; saved-snapshot regeneration |
-| Root generation and later engines | Planned | Listed below with bounded deliverables and completion criteria |
+| Step 13: semantic root planning | Offline implementation and 17 focused tests passed; full-data demonstration pending | Reviewable root families, explicit overrides/gaps/compounds, frozen evidence and portable replay |
+| Step 14 onward | Planned | Root forms, initial lexicon, and later engines listed below |
+
+The user believes Step 12C is complete and requested continuation on 2026-09-15.
+Step 13 development proceeded under that instruction. The missing exact native
+generation/reproduction result has not been relabeled as an independently verified
+Phonology v1 acceptance pass.
 
 The source database has 57 application tables through Step 8. Step 9 adds three
 serving tables only to local D1. It does not add canonical linguistic tables or
@@ -154,6 +160,27 @@ Reference data and the application must agree through the compact serving path.
 Keep the v1 supported/deferred list explicit at sign-off.
 
 ### Step 13 — semantic root planning
+
+Implemented in `scripts/analysis/semantic_root_planner.py` and
+`plan_semantic_roots.py`; usage and support boundaries are documented in
+`docs/SEMANTIC_ROOT_PLANNER.md`. Seventeen focused tests pass on synthetic evidence
+loaded through the real repository schemas, including read-only CLI generation,
+saved overrides, independent database-free replay, cycles, stable IDs, provenance,
+unknown evidence, and rejection of corrupt reports. Demonstration on the user's
+full database remains the local checkpoint.
+
+The initial demo failed on an assumed bare `DAY` gloss. It now resolves seven
+explicit Concepticon IDs, including DAY (NOT NIGHT) and RAIN (PRECIPITATION),
+to internal concept IDs. Tests cover those real labels, alternate senses,
+renamed/duplicate glosses, and missing identities. No database repair is needed.
+
+Automatic proposals use direct colexification, undirected derivation, and forward
+directional derivation support; all scores remain engineering weights. Automatic
+colexification is limited to pairs. Compounds and gaps are explicit choices.
+Saved root/lexeme IDs are project-namespaced internal concept identities, stable
+across gloss changes within the existing reference database lineage. The CLI
+retains frozen evidence, alternatives, requests and overrides. This checkpoint
+does not assign forms, introduce morphology, or add a website tab.
 
 Connect the completed semantic and phonology engines. For an explicit concept
 set, create a lexical plan before assigning surface words:
